@@ -9,7 +9,7 @@ import { connect, Socket } from "socket.io-client";
  * When not defined We will up and run local server
  */
 export let server = process.env.TEST_BE_SERVER;
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // lgtm[js/disabling-certificate-validation]
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export let baseUrl = server;
 

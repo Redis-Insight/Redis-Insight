@@ -1,13 +1,12 @@
 [![Release](https://img.shields.io/github/v/release/RedisInsight/RedisInsight.svg?sort=semver)](https://github.com/RedisInsight/RedisInsight/releases)
 [![CircleCI](https://circleci.com/gh/RedisInsight/RedisInsight/tree/main.svg?style=svg)](https://circleci.com/gh/RedisInsight/RedisInsight/tree/main)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/RedisInsight/RedisInsight.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/RedisInsight/RedisInsight/alerts/)
 
-# <img src="https://redis.com/wp-content/uploads/2019/11/ico-redisinsight.svg" alt="logo" width="25"/>  RedisInsight - Developer GUI for Redis, by Redis. 
+# <img src="https://redis.com/wp-content/uploads/2019/11/ico-redisinsight.svg" alt="logo" width="25"/>  RedisInsight - Developer GUI for Redis, by Redis.
 [![Forum](https://img.shields.io/badge/Forum-RedisInsight-red)](https://forum.redis.com/c/redisinsight/65)
 [![Discord](https://img.shields.io/discord/697882427875393627?style=flat-square)](https://discord.gg/QUkjSsk)
 
 
-RedisInsight is a visual tool that provides capabilities to design, develop and optimize your Redis application. 
+RedisInsight is a visual tool that provides capabilities to design, develop and optimize your Redis application.
 Query, analyse and interact with your Redis data. [Download it here](https://redis.com/redis-enterprise/redis-insight/#insight-form)!
 
 ![RedisInsight Browser screenshot](/.github/redisinsight_browser.png)
@@ -33,18 +32,18 @@ RedisInsight is an intuitive and efficient GUI for Redis, allowing you to intera
 * Ability to build your own data visualization plugins
 * Built-in click-through guides for Redis capabilities
 * Oficially supported for Redis OSS, [Redis Cloud](https://redis.com/try-free/). Works with Microsoft Azure Cache for Redis (official support upcoming).
-* Available for macOS (including M1), Windows and Linux 
+* Available for macOS (including M1), Windows and Linux
 
-Check out the [release notes](https://docs.redis.com/latest/ri/release-notes/). 
+Check out the [release notes](https://docs.redis.com/latest/ri/release-notes/).
 
 ## Get started with RedisInsight
 
-This repository includes the code for the GA version of RedisInsight 2.0. Check out the [blogpost](https://redis.com/blog/introducing-redisinsight-2/) announcing it. 
+This repository includes the code for the GA version of RedisInsight 2.0. Check out the [blogpost](https://redis.com/blog/introducing-redisinsight-2/) announcing it.
 
-### Installable 
+### Installable
 Available to download for free from [here](https://redis.com/redis-enterprise/redis-insight/#insight-form).
 
-### Build 
+### Build
 Alternatively you can also build from source. See our wiki for instructions.
 
 * [How to build](https://github.com/RedisInsight/RedisInsight/wiki/How-to-build-and-contribute)
@@ -72,7 +71,7 @@ If you would like to contribute to the code base or fix and issue, please consul
 
 RedisInsight includes an opt-in telemetry system, that is leveraged to help improve the developer experience (DX) within the app. We value your privacy, so stay assured, that all the data collected is anonymised.
 
-## License 
+## License
 
 RedisInsight is licensed under [SSPL](/LICENSE) license.
 

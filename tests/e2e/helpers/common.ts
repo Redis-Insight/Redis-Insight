@@ -4,7 +4,7 @@ import {apiUrl, commonUrl} from './conf';
 
 const settingsApiUrl = `${commonUrl}/api/settings`;
 const chance = new Chance();
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // lgtm[js/disabling-certificate-validation]
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const mockedSettingsResponse = {
     agreements: {

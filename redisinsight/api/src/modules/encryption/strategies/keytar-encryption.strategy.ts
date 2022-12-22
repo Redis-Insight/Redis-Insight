@@ -84,7 +84,7 @@ export class KeytarEncryptionStrategy implements IEncryptionStrategy {
       }
 
       this.cipherKey = await createHash('sha256')
-        .update(password, 'utf8') // lgtm[js/insufficient-password-hash]
+        .update(password, 'utf8')
         .digest();
     }
 

@@ -54,7 +54,7 @@ export const encryptData = (data) => {
 
   if (constants.TEST_ENCRYPTION_STRATEGY === 'KEYTAR') {
     let cipherKey = createHash('sha256')
-      .update(constants.TEST_KEYTAR_PASSWORD, 'utf8') // lgtm[js/insufficient-password-hash]
+      .update(constants.TEST_KEYTAR_PASSWORD, 'utf8')
       .digest();
     const cipher = createCipheriv('aes-256-cbc', cipherKey, Buffer.alloc(16, 0));
     let encrypted = cipher.update(data, 'utf8', 'hex');
@@ -73,7 +73,7 @@ export const decryptData = (data) => {
 
   if (constants.TEST_ENCRYPTION_STRATEGY === 'KEYTAR') {
     let cipherKey = createHash('sha256')
-      .update(constants.TEST_KEYTAR_PASSWORD, 'utf8') // lgtm[js/insufficient-password-hash]
+      .update(constants.TEST_KEYTAR_PASSWORD, 'utf8')
       .digest();
 
     const decipher = createDecipheriv('aes-256-cbc', cipherKey, Buffer.alloc(16, 0));
