@@ -182,7 +182,7 @@
     "moment": "^2.29.3",
     "monaco-editor-webpack-plugin": "^6.0.0",
     "msw": "^0.45.0",
-    "node-sass": "^6.0.1",
+    "node-sass": "^7.0.0",
     "opencollective-postinstall": "^2.0.3",
     "react-hot-loader": "^4.13.0",
     "react-refresh": "^0.9.0",
