@@ -54,7 +54,7 @@
     "cross-env": "^7.0.3",
     "parcel": "^2.0.0",
     "rimraf": "^3.0.2",
-    "terser": "^5.9.0"
+    "terser": "^5.14.2"
   },
   "dependencies": {
     "@antv/hierarchy": "^0.6.8",
