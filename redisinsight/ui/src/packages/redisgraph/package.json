@@ -50,7 +50,7 @@
     "cross-env": "^7.0.3",
     "parcel": "2.3.2",
     "rimraf": "^3.0.2",
-    "terser": "^5.9.0"
+    "terser": "^5.14.2"
   },
   "dependencies": {
     "@elastic/eui": "34.6.0",
