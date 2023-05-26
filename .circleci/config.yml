@@ -563,12 +563,7 @@ jobs:
               exit 0;
             fi
 
-            if [ << parameters.env >> == 'stage' ]; then
-              UPGRADES_LINK=$UPGRADES_LINK_STAGE SEGMENT_WRITE_KEY=$SEGMENT_WRITE_KEY_STAGE yarn package:stage
-              exit 0;
-            fi
-
-            UPGRADES_LINK='' SEGMENT_WRITE_KEY='' yarn package:stage
+            UPGRADES_LINK=$UPGRADES_LINK_STAGE SEGMENT_WRITE_KEY=$SEGMENT_WRITE_KEY_STAGE yarn package:stage
       - when:
           condition:
             equal: [ true, << parameters.redisstack >> ]
@@ -638,13 +633,7 @@ jobs:
               exit 0;
             fi
 
-            if [ << parameters.env >> == 'stage' ]; then
-              UPGRADES_LINK=$UPGRADES_LINK_STAGE SEGMENT_WRITE_KEY=$SEGMENT_WRITE_KEY_STAGE yarn package:stage && yarn package:mas
-              rm -rf release/mac
-              exit 0;
-            fi
-
-            UPGRADES_LINK='' SEGMENT_WRITE_KEY='' yarn package:stage && yarn package:mas
+            UPGRADES_LINK=$UPGRADES_LINK_STAGE SEGMENT_WRITE_KEY=$SEGMENT_WRITE_KEY_STAGE yarn package:stage && yarn package:mas
             rm -rf release/mac
             mv release/mas-universal/RedisInsight-mac-universal-mas.pkg release/RedisInsight-mac-universal-mas.pkg
           no_output_timeout: 60m
@@ -693,13 +682,7 @@ jobs:
               exit 0;
             fi
 
-            if [ << parameters.env >> == 'stage' ]; then
-              UPGRADES_LINK=$UPGRADES_LINK_STAGE SEGMENT_WRITE_KEY=$SEGMENT_WRITE_KEY_STAGE yarn package:stage
-              rm -rf release/win-unpacked
-              exit 0;
-            fi
-
-            UPGRADES_LINK='' SEGMENT_WRITE_KEY='' yarn package:stage
+            UPGRADES_LINK=$UPGRADES_LINK_STAGE SEGMENT_WRITE_KEY=$SEGMENT_WRITE_KEY_STAGE yarn package:stage
             rm -rf release/win-unpacked
           shell: bash.exe
           no_output_timeout: 20m
