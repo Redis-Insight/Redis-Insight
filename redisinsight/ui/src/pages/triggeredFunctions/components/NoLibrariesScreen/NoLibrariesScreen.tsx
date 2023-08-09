@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useParams, useHistory } from 'react-router-dom'
 import cx from 'classnames'
@@ -15,10 +15,12 @@ import { ThemeContext } from 'uiSrc/contexts/themeContext'
 import { Theme, EAManifestFirstKey, Pages, MODULE_NOT_LOADED_CONTENT as CONTENT, MODULE_TEXT_VIEW } from 'uiSrc/constants'
 import { workbenchGuidesSelector } from 'uiSrc/slices/workbench/wb-guides'
 import { resetWorkbenchEASearch, setWorkbenchEAMinimized } from 'uiSrc/slices/app/context'
+import { freeInstanceSelector } from 'uiSrc/slices/instances/instances'
+import { RedisDefaultModules, OAuthSocialSource } from 'uiSrc/slices/interfaces'
+import { OAuthConnectFreeDb, OAuthSsoHandlerDialog } from 'uiSrc/components'
 import { ReactComponent as CheerIcon } from 'uiSrc/assets/img/icons/cheer.svg'
 import { ReactComponent as TriggersAndFunctionsImageDark } from 'uiSrc/assets/img/triggers_and_functions_dark.svg'
 import { ReactComponent as TriggersAndFunctionsImageLight } from 'uiSrc/assets/img/triggers_and_functions_light.svg'
-import { RedisDefaultModules } from 'uiSrc/slices/interfaces'
 import { findMarkdownPathByPath } from 'uiSrc/utils'
 
 import styles from './styles.module.scss'
@@ -43,6 +45,7 @@ const moduleName = MODULE_TEXT_VIEW[RedisDefaultModules.RedisGears]
 const NoLibrariesScreen = (props: IProps) => {
   const { isAddLibraryPanelOpen, isModuleLoaded, onAddLibrary = () => {} } = props
   const { items: guides } = useSelector(workbenchGuidesSelector)
+  const freeInstance = useSelector(freeInstanceSelector)
 
   const { instanceId = '' } = useParams<{ instanceId: string }>()
   const dispatch = useDispatch()
@@ -60,6 +63,87 @@ const NoLibrariesScreen = (props: IProps) => {
     dispatch(resetWorkbenchEASearch())
     history.push(Pages.workbench(instanceId))
   }
+
+  const renderText = useCallback(() => {
+    if (isModuleLoaded) {
+      return 'Upload a new library to start working with triggers and functions or try the interactive tutorial to learn more.'
+    }
+    return freeInstance
+      ? 'Use your Redis Stack database in Redis Enterprise Cloud to start exploring these capabilities.'
+      : 'Create a free Redis Stack database with Triggers and Functions which extends the core capabilities of open-source Redis'
+  }, [freeInstance, isModuleLoaded])
+
+  const renderActions = useCallback(() => {
+    if (isModuleLoaded) {
+      return (
+        <div className={styles.linksWrapper}>
+          <EuiButtonEmpty
+            className={cx(styles.text, styles.link, styles.btn)}
+            size="s"
+            onClick={goToTutorial}
+            data-testid="no-libraries-tutorial-link"
+          >
+            Tutorial
+          </EuiButtonEmpty>
+          <EuiButton
+            fill
+            size="s"
+            color="secondary"
+            className={styles.btn}
+            onClick={onAddLibrary}
+            data-testid="no-libraries-add-library-btn"
+          >
+            + Library
+          </EuiButton>
+        </div>
+      )
+    }
+
+    return freeInstance
+      ? (
+        <OAuthConnectFreeDb
+          source={OAuthSocialSource.TriggersAndFunctionsPage}
+        />
+      )
+      : (
+        <div className={styles.linksWrapper}>
+          <EuiButtonEmpty
+            className={cx(styles.text, styles.link, styles.btn)}
+            size="s"
+            onClick={goToTutorial}
+            data-testid="no-libraries-tutorial-link"
+          >
+            Tutorial
+          </EuiButtonEmpty>
+          <OAuthSsoHandlerDialog>
+            {(ssoCloudHandlerClick) => (
+              <EuiLink
+                className={styles.link}
+                external={false}
+                target="_blank"
+                href="https://redis.com/try-free/?utm_source=redisinsight&utm_medium=app&utm_campaign=redisinsight_triggers_and_functions"
+                onClick={(e) => {
+                  ssoCloudHandlerClick(
+                    e,
+                    OAuthSocialSource.TriggersAndFunctionsPage
+                  )
+                }}
+                data-testid="get-started-link"
+              >
+                <EuiButton
+                  fill
+                  size="s"
+                  color="secondary"
+                  className={styles.btnLink}
+                >
+                  Get Started For Free
+                </EuiButton>
+              </EuiLink>
+            )}
+          </OAuthSsoHandlerDialog>
+        </div>
+      )
+  }, [freeInstance, isModuleLoaded])
 
   return (
     <div className={styles.wrapper} data-testid="no-libraries-component">
@@ -90,52 +174,10 @@ const NoLibrariesScreen = (props: IProps) => {
             </EuiText>
           ))}
           <EuiText className={cx(styles.additionalText, styles.marginBottom)} data-testid="no-libraries-action-text">
-            {isModuleLoaded
-              ? 'Upload a new library to start working with triggers and functions or try the interactive tutorial to learn more.'
-              : 'Create a free Redis Stack database which extends the core capabilities of open-source Redis and try the interactive tutorial to learn how to work with triggers and functions.'}
+            {renderText()}
           </EuiText>
         </div>
-        <div className={styles.linksWrapper}>
-          <EuiButtonEmpty
-            className={cx(styles.text, styles.link, styles.btn)}
-            size="s"
-            onClick={goToTutorial}
-            data-testid="no-libraries-tutorial-link"
-          >
-            Tutorial
-          </EuiButtonEmpty>
-          {isModuleLoaded
-            ? (
-              <EuiButton
-                fill
-                size="s"
-                color="secondary"
-                className={styles.btn}
-                onClick={onAddLibrary}
-                data-testid="no-libraries-add-library-btn"
-              >
-                + Library
-              </EuiButton>
-            )
-            : (
-              <EuiLink
-                className={styles.link}
-                external={false}
-                target="_blank"
-                href="https://redis.com/try-free/?utm_source=redisinsight&utm_medium=app&utm_campaign=redisinsight_triggers_and_functions"
-                data-testid="get-started-link"
-              >
-                <EuiButton
-                  fill
-                  size="s"
-                  color="secondary"
-                  className={styles.btn}
-                >
-                  Get Started For Free
-                </EuiButton>
-              </EuiLink>
-            )}
-        </div>
+        {renderActions()}
       </div>
       {!isAddLibraryPanelOpen && (
         <div className={styles.imageWrapper}>

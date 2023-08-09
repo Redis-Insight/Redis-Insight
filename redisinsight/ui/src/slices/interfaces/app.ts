@@ -266,6 +266,8 @@ export enum OAuthSocialSource {
   RedisGraph = 'workbench RedisGraph',
   RedisBloom = 'workbench RedisBloom',
   Autodiscovery = 'autodiscovery',
+  TriggersAndFunctionsPage = 'page triggers and functions',
+  'triggers and functions' = 'workbench triggers and functions',
 }
 
 export interface StateAppActionBar {

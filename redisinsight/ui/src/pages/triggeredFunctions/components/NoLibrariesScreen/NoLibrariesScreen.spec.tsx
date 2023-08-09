@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash'
 import { instance, mock } from 'ts-mockito'
 import { cleanup, clearStoreActions, render, fireEvent, screen, mockedStore } from 'uiSrc/utils/test-utils'
 import { resetWorkbenchEASearch, setWorkbenchEAMinimized } from 'uiSrc/slices/app/context'
+import { freeInstanceSelector, resetConnectedInstance, setDefaultInstance } from 'uiSrc/slices/instances/instances'
 import { workbenchGuidesSelector } from 'uiSrc/slices/workbench/wb-guides'
 
 import NoLibrariesScreen, { IProps } from './NoLibrariesScreen'
@@ -41,6 +42,11 @@ jest.mock('uiSrc/slices/workbench/wb-guides', () => ({
       ]
     }],
   }),
+}))
+
+jest.mock('uiSrc/slices/instances/instances', () => ({
+  ...jest.requireActual('uiSrc/slices/instances/instances'),
+  freeInstanceSelector: jest.fn().mockReturnValue(null),
 }))
 
 describe('NoLibrariesScreen', () => {
@@ -89,7 +95,7 @@ describe('NoLibrariesScreen', () => {
     render(<NoLibrariesScreen {...instance(mockedProps)} />)
 
     expect(screen.getByTestId('no-libraries-title')).toHaveTextContent('triggers and functions are not available for this database')
-    expect(screen.getByTestId('no-libraries-action-text')).toHaveTextContent('Create a free Redis Stack database which extends the core capabilities of open-source Redis and try the interactive tutorial to learn how to work with triggers and functions.')
+    expect(screen.getByTestId('no-libraries-action-text')).toHaveTextContent('Create a free Redis Stack database with Triggers and Functions which extends the core capabilities of open-source Redis')
   })
 
   it('should call proper actions and push to workbench page', () => {
@@ -107,5 +113,28 @@ describe('NoLibrariesScreen', () => {
     const expectedActions = [setWorkbenchEAMinimized(false), resetWorkbenchEASearch()]
     expect(clearStoreActions(store.getActions())).toEqual(clearStoreActions(expectedActions))
     expect(pushMock).toBeCalledWith('/instanceId/workbench')
+  })
+
+  it('should render OAuthConnectFreeDb when there is freeInstance', () => {
+    (freeInstanceSelector as jest.Mock).mockImplementation(() => ({
+      id: 'instanceId',
+    }))
+
+    render(<NoLibrariesScreen {...instance(mockedProps)} />)
+
+    expect(screen.getByTestId('connect-free-db-btn')).toBeInTheDocument()
+    expect(screen.getByTestId('no-libraries-action-text')).toHaveTextContent('Use your Redis Stack database in Redis Enterprise Cloud to start exploring these capabilities.')
+  })
+
+  it('should render proper components and text when module is loaded', () => {
+    (freeInstanceSelector as jest.Mock).mockImplementation(() => ({
+      id: 'instanceId',
+    }))
+
+    const { queryByTestId } = render(<NoLibrariesScreen {...instance(mockedProps)} isModuleLoaded />)
+
+    expect(queryByTestId('no-libraries-title')).toHaveTextContent('Triggers and functions')
+    expect(queryByTestId('no-libraries-action-text')).toHaveTextContent('Upload a new library to start working with triggers and functions or try the interactive tutorial to learn more.')
+    expect(queryByTestId('connect-free-db-btn')).not.toBeInTheDocument()
   })
 })
