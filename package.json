@@ -240,7 +240,7 @@
     "@elastic/eui": "34.6.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@stablelib/snappy": "^1.0.2",
-    "axios": "^0.25.0",
+    "axios": "^1.6.0",
     "brotli-unicode": "^1.0.2",
     "buffer": "^6.0.3",
     "classnames": "^2.3.1",
