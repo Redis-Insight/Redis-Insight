@@ -33,7 +33,7 @@ FROM node:18.15.0-slim
 # Set up mDNS functionality, to play well with Redis Enterprise
 # clusters on the network.
 RUN set -ex \
- && DEPS="avahi-daemon libnss-mdns" \
+  && DEPS="avahi-daemon libnss-mdns net-tools dbus-x11 gnome-keyring libsecret-1-0" \
  && apt-get update && apt-get install -y --no-install-recommends $DEPS \
  # Disable nss-mdns's two-label limit heuristic so that host names
  # with multiple labels can be resolved.
@@ -56,8 +56,6 @@ RUN set -ex \
  && chown avahi:avahi /var/run/avahi-daemon \
  && chmod 777 /var/run/avahi-daemon
 
-RUN apt-get install net-tools
-RUN apt-get install -y dbus-x11 gnome-keyring libsecret-1-0
 RUN dbus-uuidgen > /var/lib/dbus/machine-id
 
 ARG NODE_ENV=production
