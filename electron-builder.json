@@ -113,6 +113,10 @@
     "icon": "./resources/icons",
     "target": [
       {
+        "target": "flatpak",
+        "arch": ["x64"]
+      },
+      {
         "target": "AppImage",
         "arch": ["x64"]
       },
