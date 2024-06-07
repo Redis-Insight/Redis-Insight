@@ -12,6 +12,7 @@ export class BrowserPage extends InstancePage {
     cssSelectorRows = '[aria-label="row"]';
     cssSelectorKey = '[data-testid^=key-]';
     cssFilteringLabel = '[data-testid=multi-search]';
+    cssPrimitiveJsonValue = '[data-testid=json-primitive-value]';
     cssJsonValue = '[data-testid=value-as-json]';
     cssRowInVirtualizedTable = '[role=gridcell]';
     cssVirtualTableRow = '[aria-label=row]';
@@ -92,9 +93,9 @@ export class BrowserPage extends InstancePage {
     editStreamLastIdButton = Selector('[data-testid^=edit-stream-last-id]');
     saveButton = Selector('[data-testid=save-btn]');
     bulkActionsButton = Selector('[data-testid=btn-bulk-actions]');
-    editHashButton = Selector('[data-testid^=edit-hash-button-]');
-    editZsetButton = Selector('[data-testid^=zset-edit-button-]');
-    editListButton = Selector('[data-testid^=edit-list-button-]');
+    editHashButton = Selector('[data-testid^=hash_edit-btn-]');
+    editZsetButton = Selector('[data-testid^=zset_edit-btn-]');
+    editListButton = Selector('[data-testid^=list_edit-btn-]');
     cancelStreamGroupBtn = Selector('[data-testid=cancel-stream-groups-btn]');
     patternModeBtn = Selector('[data-testid=search-mode-pattern-btn]');
     redisearchModeBtn = Selector('[data-testid=search-mode-redisearch-btn]');
@@ -159,10 +160,9 @@ export class BrowserPage extends InstancePage {
     ttlText = Selector('[data-testid=key-ttl-text] span');
     hashFieldValueInput = Selector('[data-testid=field-value]');
     hashFieldNameInput = Selector('[data-testid=field-name]');
-    hashFieldValueEditor = Selector('[data-testid=hash-value-editor]');
-    listElementEditor = Selector('[data-testid=hash-value-editor]');
+    hashFieldValueEditor = Selector('[data-testid^=hash_value-editor]');
     listKeyElementInput = Selector('[data-testid=element]');
-    listKeyElementEditorInput = Selector('[data-testid=element-value-editor]');
+    listKeyElementEditorInput = Selector('[data-testid^=list_value-editor-]');
     stringKeyValueInput = Selector('[data-testid=string-value]');
     jsonKeyValueInput = Selector('[data-mode-id=json]');
     jsonUploadInput = Selector('[data-testid=upload-input-file]');
@@ -199,13 +199,13 @@ export class BrowserPage extends InstancePage {
     keyLengthDetails = Selector('[data-testid=key-length-text]');
     keyNameInTheList = Selector(this.cssSelectorKey);
     hashFieldsList = Selector('[data-testid^=hash-field-] span');
-    hashValuesList = Selector('[data-testid^=hash-field-value-] span');
+    hashValuesList = Selector('[data-testid^=hash_content-value-] span');
     hashField = Selector('[data-testid^=hash-field-]').nth(0);
-    hashFieldValue = Selector('[data-testid^=hash-field-value-]');
+    hashFieldValue = Selector('[data-testid^=hash_content-value-]');
     setMembersList = Selector('[data-testid^=set-member-value-]');
     zsetMembersList = Selector('[data-testid^=zset-member-value-]');
-    zsetScoresList = Selector('[data-testid^=zset-score-value-]');
-    listElementsList = Selector('[data-testid^=list-element-value-]');
+    zsetScoresList = Selector('[data-testid^=zset_content-value-]');
+    listElementsList = Selector('[data-testid^=list_content-value-]');
     jsonKeyValue = Selector('[data-testid=json-data]');
     jsonError = Selector('[data-testid=edit-json-error]');
     tooltip = Selector('[role=tooltip]', { timeout: 500 });
@@ -614,11 +614,12 @@ export class BrowserPage extends InstancePage {
     }
 
     /**
-     * Edit Zset key score from details
-     * @param value The value of the key
+     * Edit Zset key  the firstscore from details
+     * @param value The new value of the key
      */
     async editZsetKeyScore(value: string): Promise<void> {
         await t
+            .hover(this.zsetScoresList)
             .click(this.editZsetButton)
             .typeText(this.inlineItemEditor, value, { replace: true, paste: true })
             .click(this.applyButton);
@@ -645,11 +646,12 @@ export class BrowserPage extends InstancePage {
     }
 
     /**
-     * Edit Hash key value from details
-     * @param value The value of the key
+     * Edit Hash key the first value from details
+     * @param value The  new value of the key
      */
     async editHashKeyValue(value: string): Promise<void> {
         await t
+            .hover(this.hashFieldValue)
             .click(this.editHashButton)
             .typeText(this.hashFieldValueEditor, value, { replace: true, paste: true })
             .click(this.applyButton);
@@ -666,6 +668,7 @@ export class BrowserPage extends InstancePage {
      */
     async editListKeyValue(value: string): Promise<void> {
         await t
+            .hover(this.listElementsList)
             .click(this.editListButton)
             .typeText(this.listKeyElementEditorInput, value, { replace: true, paste: true })
             .click(this.applyButton);

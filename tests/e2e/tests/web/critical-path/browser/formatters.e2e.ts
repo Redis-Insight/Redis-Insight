@@ -1,25 +1,26 @@
 import { Selector } from 'testcafe';
-import { keyLength, rte } from '../../../../helpers/constants';
-import { addKeysViaCli, deleteKeysViaCli, keyTypes } from '../../../../helpers/keys';
-import { DatabaseHelper } from '../../../../helpers/database';
+import { keyLength, KeyTypesTexts, rte } from '../../../../helpers/constants';
+import { addKeysViaCli, deleteKeysViaCli, formattersKeyTypes } from '../../../../helpers/keys';
+import { Common, DatabaseHelper } from '../../../../helpers';
 import { BrowserPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
-import { Common } from '../../../../helpers/common';
-import { formatters, phpData } from '../../../../test-data/formatters-data';
+import {
+    binaryFormattersSet,
+    formattersForEditSet,
+    formattersHighlightedSet,
+    formattersWithTooltipSet,
+    fromBinaryFormattersSet,
+    notEditableFormattersSet
+} from '../../../../test-data/formatters-data';
+import { phpData } from '../../../../test-data/formatters';
 
 const browserPage = new BrowserPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
 
-const keysData = keyTypes.map(object => ({ ...object })).filter((v, i) => i <= 6 && i !== 5);
-keysData.forEach(key => key.keyName = `${key.keyName}` + '-' + `${Common.generateWord(keyLength)}`);
-const binaryFormattersSet = [formatters[5], formatters[6], formatters[7]];
-const formattersHighlightedSet = [formatters[0], formatters[3]];
-const fromBinaryFormattersSet = [formatters[1], formatters[2], formatters[4], formatters[8], formatters[9], formatters[10]];
-const formattersForEditSet = [formatters[0], formatters[1], formatters[3]];
-const formattersWithTooltipSet = [formatters[0], formatters[1], formatters[2], formatters[3], formatters[4], formatters[8], formatters[9], formatters[10]];
-const notEditableFormattersSet = [formatters[2], formatters[4], formatters[8], formatters[9], formatters[10]];
+const keysData = formattersKeyTypes.map(item =>
+    ({ ...item, keyName: `${item.keyName}` + '-' + `${Common.generateWord(keyLength)}` }));
 const defaultFormatter = 'Unicode';
 
 fixture `Formatters`
@@ -48,7 +49,7 @@ formattersHighlightedSet.forEach(formatter => {
             // Verify for JSON and PHP serialized
             // Verify for Hash, List, Set, ZSet, String, Stream keys
             for (const key of keysData) {
-                const valueSelector = Selector(`[data-testid^=${key.keyName.split('-')[0]}-][data-testid*=${key.data}]`);
+                const valueSelector = Selector(`[data-testid^=${key.keyName.split('-')[0]}][data-testid*=${key.data}]`);
                 await browserPage.openKeyDetailsByKeyName(key.keyName);
                 // Verify that value not formatted with default formatter
                 await browserPage.selectFormatter(defaultFormatter);
@@ -116,13 +117,20 @@ formattersWithTooltipSet.forEach(formatter => {
         // Verify for JSON, Msgpack, Protobuf, PHP serialized, Java serialized object, Pickle, Vector 32-bit, Vector 64-bit formatters
         const failedMessage = `Failed to convert to ${formatter.format}`;
         for (let i = 0; i < keysData.length; i++) {
-            const valueSelector = Selector(`[data-testid^=${keysData[i].keyName.split('-')[0]}-][data-testid*=${keysData[i].data}]`);
+            const valueSelector = Selector(`[data-testid^=${keysData[i].keyName.split('-')[0]}][data-testid*=${keysData[i].data}]`);
+            let innerValueSelector = Selector('');
+            if(keysData[i].keyName.split('-')[0] !== 'string'){
+                innerValueSelector  = valueSelector.find('span');
+            }
+            else{
+                innerValueSelector = valueSelector;
+            }
             // Open key details and select formatter
             await browserPage.openKeyDetailsByKeyName(keysData[i].keyName);
             await browserPage.selectFormatter(formatter.format);
             // Verify that not valid value is not formatted
             await t.expect(valueSelector.find(browserPage.cssJsonValue).exists).notOk(`${keysData[i].textType} Value is formatted to ${formatter.format}`);
-            await t.hover(valueSelector, { offsetX: 5 });
+            await t.hover(innerValueSelector);
             // Verify that tooltip with convertion failed message displayed
             await t.expect(browserPage.tooltip.textContent).contains(failedMessage, `"${failedMessage}" is not displayed in tooltip`);
         }
@@ -138,7 +146,7 @@ binaryFormattersSet.forEach(formatter => {
             // Verify for ASCII, HEX, Binary formatters
             // Verify for Hash, List, Set, ZSet, String, Stream keys
             for (let i = 0; i < keysData.length; i++) {
-                const valueSelector = Selector(`[data-testid^=${keysData[i].keyName.split('-')[0]}-][data-testid*=${keysData[i].data}]`);
+                const valueSelector = Selector(`[data-testid^=${keysData[i].keyName.split('-')[0]}][data-testid*=${keysData[i].data}]`);
                 await browserPage.openKeyDetailsByKeyName(keysData[i].keyName);
                 // Verify that value not formatted with default formatter
                 await browserPage.selectFormatter(defaultFormatter);
@@ -192,14 +200,21 @@ notEditableFormattersSet.forEach(formatter => {
     test(`Verify that user see edit icon disabled for all keys when ${formatter.format} selected`, async t => {
         // Verify for Protobuf, Java serialized, Pickle, Vector 32-bit, Vector 64-bit
         // Verify for Hash, List, ZSet, String keys
+        const editableValueKeyTypes = [
+            KeyTypesTexts.Hash,
+            KeyTypesTexts.List,
+            KeyTypesTexts.String
+        ];
         for (const key of keysData) {
-            if (key.textType === 'Hash' || key.textType === 'List' || key.textType === 'String') {
+            if (editableValueKeyTypes.includes(key.textType)) {
                 const editBtn = (key.textType === 'String')
                     ? browserPage.editKeyValueButton
-                    : Selector(`[data-testid*=edit-][data-testid*=${key.keyName.split('-')[0]}]`, { timeout: 500 });
+                    : Selector(`[data-testid*=${key.keyName.split('-')[0]}][data-testid*=edit-]`, { timeout: 500 });
+                const valueSelector = Selector(`[data-testid^=${key.keyName.split('-')[0]}][data-testid*=${key.data}]`);
                 await browserPage.openKeyDetailsByKeyName(key.keyName);
                 await browserPage.selectFormatter(formatter.format);
                 // Verify that edit button disabled
+                await t.hover(valueSelector);
                 await t.expect(editBtn.hasAttribute('disabled')).ok(`Key ${key.textType} is enabled for ${formatter.format} formatter`);
                 // Hover on disabled button
                 await t.hover(editBtn);
@@ -207,10 +222,12 @@ notEditableFormattersSet.forEach(formatter => {
                 await t.expect(browserPage.tooltip.textContent).contains('Cannot edit the value in this format', 'Tooltip has wrong text');
             }
             if (key.textType === 'Sorted Set') {
-                const editBtn = Selector(`[data-testid*=edit-][data-testid*=${key.keyName.split('-')[0]}]`, { timeout: 500 });
+                const editBtn = Selector(`[data-testid*=${key.keyName.split('-')[0]}][data-testid*=edit-]`, { timeout: 500 });
+                const valueSelector = Selector('[data-testid*=zset_content-value]');
                 await browserPage.openKeyDetailsByKeyName(key.keyName);
                 await browserPage.selectFormatter(formatter.format);
                 // Verify that edit button enabled for ZSet
+                await t.hover(valueSelector);
                 await t.expect(editBtn.hasAttribute('disabled')).notOk(`Key ${key.textType} is disabled for ${formatter.format} formatter`);
             }
         }
