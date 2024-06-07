@@ -179,7 +179,7 @@ export class BrowserPage extends InstancePage {
     streamEntryId = Selector('[data-testid=entryId]');
     streamField = Selector('[data-testid=field-name]');
     streamValue = Selector('[data-testid=field-value]');
-    addStreamRow = Selector('[data-testid=add-new-item]');
+    addStreamRow = Selector('[data-testid=add-item]');
     streamFieldsValues = Selector('[data-testid^=stream-entry-field-]');
     streamEntryIDDateValue = Selector('[data-testid^=stream-entry-][data-testid$=date]');
     streamRangeEndInput = Selector('[data-testid=range-end-input]');
