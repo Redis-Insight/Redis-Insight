@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import fixReactVirtualized from 'esbuild-plugin-react-virtualized'
-// import { compression } from 'vite-plugin-compression2'
+import { compression } from 'vite-plugin-compression2'
 import { fileURLToPath, URL } from 'url'
 import path from 'path'
 
@@ -25,10 +25,10 @@ export default defineConfig({
   plugins: [
     react(),
     svgr({ include: ['**/*.svg?react'] }),
-    // !isElectron && compression({
-    //   include: [/\.(js)$/, /\.(css)$/],
-    //   deleteOriginalAssets: true
-    // }),
+    !isElectron && compression({
+      include: [/\.(js)$/, /\.(css)$/],
+      deleteOriginalAssets: true
+    }),
   ],
   resolve: {
     alias: {
