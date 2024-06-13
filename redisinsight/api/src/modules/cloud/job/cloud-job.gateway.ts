@@ -1,10 +1,12 @@
 import { Socket, Server } from 'socket.io';
 import {
+  ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer, WsException,
 } from '@nestjs/websockets';
 import {
+  Body,
   Logger, ValidationPipe,
 } from '@nestjs/common';
 import config from 'src/utils/config';
@@ -13,8 +15,9 @@ import { CloudJobService } from 'src/modules/cloud/job/cloud-job.service';
 import { MonitorCloudJobDto } from 'src/modules/cloud/job/dto/monitor.cloud-job.dto';
 import { Validator } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import { DEFAULT_SESSION_ID, DEFAULT_USER_ID } from 'src/common/constants';
 import { CloudJobInfo } from 'src/modules/cloud/job/models';
+import { SessionMetadata } from 'src/common/models';
+import { WSSessionMetadata } from 'src/modules/auth/session-metadata/decorators/ws-session-metadata.decorator';
 
 const SOCKETS_CONFIG = config.get('sockets');
 
@@ -33,7 +36,11 @@ export class CloudJobGateway {
   ) {}
 
   @SubscribeMessage(CloudJobEvents.Monitor)
-  async monitor(client: Socket, data: MonitorCloudJobDto): Promise<CloudJobInfo> {
+  async monitor(
+    @WSSessionMetadata() sessionMetadata: SessionMetadata,
+      @ConnectedSocket() client: Socket,
+      @Body() data: MonitorCloudJobDto,
+  ): Promise<CloudJobInfo> {
     try {
       const dto = plainToClass(MonitorCloudJobDto, data);
 
@@ -45,12 +52,6 @@ export class CloudJobGateway {
       if (errors?.length) {
         throw this.exceptionFactory(errors);
       }
-
-      // todo: implement session handling for entire app
-      const sessionMetadata = {
-        userId: DEFAULT_USER_ID,
-        sessionId: DEFAULT_SESSION_ID,
-      };
 
       return await this.cloudJobService.monitorJob(sessionMetadata, dto, client);
     } catch (error) {

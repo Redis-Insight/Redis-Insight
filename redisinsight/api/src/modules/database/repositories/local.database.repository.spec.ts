@@ -27,6 +27,7 @@ import {
   mockRepository,
   mockSentinelDatabaseWithTlsAuth,
   mockSentinelDatabaseWithTlsAuthEntity,
+  mockSessionMetadata,
   mockSshOptionsBasicEntity,
   mockSshOptionsPassphraseEncrypted,
   mockSshOptionsPassphrasePlain,
@@ -154,18 +155,18 @@ describe('LocalDatabaseRepository', () => {
 
   describe('exists', () => {
     it('should return true when receive database entity', async () => {
-      expect(await service.exists(mockDatabaseId)).toEqual(true);
+      expect(await service.exists(mockSessionMetadata, mockDatabaseId)).toEqual(true);
     });
 
     it('should return false when no database received', async () => {
       repository.createQueryBuilder().getOne.mockResolvedValue(null);
-      expect(await service.exists(mockDatabaseId)).toEqual(false);
+      expect(await service.exists(mockSessionMetadata, mockDatabaseId)).toEqual(false);
     });
   });
 
   describe('get', () => {
     it('should return standalone database model', async () => {
-      const result = await service.get(mockDatabaseId);
+      const result = await service.get(mockSessionMetadata, mockDatabaseId);
 
       expect(result).toEqual(mockDatabase);
       expect(caCertRepository.get).not.toHaveBeenCalled();
@@ -174,7 +175,7 @@ describe('LocalDatabaseRepository', () => {
 
     it('should return standalone database model with ssh enabled (basic)', async () => {
       repository.findOneBy.mockResolvedValue(mockDatabaseWithSshBasicEntity);
-      const result = await service.get(mockDatabaseWithSshBasic.id);
+      const result = await service.get(mockSessionMetadata, mockDatabaseWithSshBasic.id);
 
       expect(result).toEqual(mockDatabaseWithSshBasic);
       expect(caCertRepository.get).not.toHaveBeenCalled();
@@ -183,7 +184,7 @@ describe('LocalDatabaseRepository', () => {
 
     it('should return standalone database model with ssh enabled (privateKey + passphrase)', async () => {
       repository.findOneBy.mockResolvedValue(mockDatabaseWithSshPrivateKeyEntity);
-      const result = await service.get(mockDatabaseWithSshPrivateKey.id);
+      const result = await service.get(mockSessionMetadata, mockDatabaseWithSshPrivateKey.id);
 
       expect(result).toEqual(mockDatabaseWithSshPrivateKey);
       expect(caCertRepository.get).not.toHaveBeenCalled();
@@ -193,7 +194,7 @@ describe('LocalDatabaseRepository', () => {
     it('should return standalone model with ca tls', async () => {
       repository.findOneBy.mockResolvedValue(mockDatabaseWithTlsEntity);
 
-      const result = await service.get(mockDatabaseId);
+      const result = await service.get(mockSessionMetadata, mockDatabaseId);
 
       expect(result).toEqual(mockDatabaseWithTls);
       expect(caCertRepository.get).toHaveBeenCalled();
@@ -203,7 +204,7 @@ describe('LocalDatabaseRepository', () => {
     it('should return sentinel tls database model (with fields decryption)', async () => {
       repository.findOneBy.mockResolvedValue(mockSentinelDatabaseWithTlsAuthEntity);
 
-      const result = await service.get(mockDatabaseId);
+      const result = await service.get(mockSessionMetadata, mockDatabaseId);
 
       expect(result).toEqual(mockSentinelDatabaseWithTlsAuth);
       expect(caCertRepository.get).toHaveBeenCalled();
@@ -213,7 +214,7 @@ describe('LocalDatabaseRepository', () => {
     it('should return cluster database model (with fields decryption)', async () => {
       repository.findOneBy.mockResolvedValue(mockClusterDatabaseWithTlsAuthEntity);
 
-      const result = await service.get(mockDatabaseId);
+      const result = await service.get(mockSessionMetadata, mockDatabaseId);
 
       expect(result).toEqual(mockClusterDatabaseWithTlsAuth);
       expect(caCertRepository.get).toHaveBeenCalled();
@@ -223,7 +224,7 @@ describe('LocalDatabaseRepository', () => {
     it('should return null when database was not found', async () => {
       repository.findOneBy.mockResolvedValue(undefined);
 
-      const result = await service.get(mockDatabaseId);
+      const result = await service.get(mockSessionMetadata, mockDatabaseId);
 
       expect(result).toEqual(null);
       expect(caCertRepository.get).not.toHaveBeenCalled();
@@ -232,7 +233,7 @@ describe('LocalDatabaseRepository', () => {
 
     it('should return standalone database model without omit fields', async () => {
       const omitFields = ['compressor', 'connectionType'];
-      const result = await service.get(mockDatabaseId, false, omitFields);
+      const result = await service.get(mockSessionMetadata, mockDatabaseId, false, omitFields);
 
       expect(result).toEqual(omit(mockDatabase, omitFields));
     });
@@ -241,7 +242,7 @@ describe('LocalDatabaseRepository', () => {
       const omitFields = ['compressor', 'sshOptions.passphrase', 'sshOptions.privateKey'];
 
       repository.findOneBy.mockResolvedValueOnce(mockDatabaseWithSshPrivateKeyEntity);
-      const result = await service.get(mockDatabaseWithSshPrivateKey.id, false, omitFields);
+      const result = await service.get(mockSessionMetadata, mockDatabaseWithSshPrivateKey.id, false, omitFields);
 
       expect(result).toEqual(omit(cloneClassInstance(mockDatabaseWithSshPrivateKey), omitFields));
       expect(caCertRepository.get).not.toHaveBeenCalled();
@@ -251,7 +252,7 @@ describe('LocalDatabaseRepository', () => {
 
   describe('list', () => {
     it('should return list of databases with specific fields only', async () => {
-      expect(await service.list()).toEqual([
+      expect(await service.list(mockSessionMetadata)).toEqual([
         pick(mockDatabaseWithTlsAuth, ...listFields),
         pick(mockDatabaseWithTlsAuth, ...listFields),
       ]);
@@ -262,7 +263,7 @@ describe('LocalDatabaseRepository', () => {
         pick(mockDatabaseEntityWithCloudDetails, ...listFields),
       ]);
 
-      expect(await service.list()).toEqual([
+      expect(await service.list(mockSessionMetadata)).toEqual([
         pick(mockDatabaseWithCloudDetails, ...listFields),
         pick(mockDatabaseWithCloudDetails, ...listFields),
       ]);
@@ -271,7 +272,7 @@ describe('LocalDatabaseRepository', () => {
 
   describe('create', () => {
     it('should create standalone database', async () => {
-      const result = await service.create(mockDatabase, false);
+      const result = await service.create(mockSessionMetadata, mockDatabase, false);
 
       expect(result).toEqual(mockDatabase);
       expect(caCertRepository.create).not.toHaveBeenCalled();
@@ -281,7 +282,7 @@ describe('LocalDatabaseRepository', () => {
     it('should create standalone database with cloud details', async () => {
       repository.save.mockResolvedValue(mockDatabaseEntityWithCloudDetails);
 
-      const result = await service.create(mockDatabaseWithCloudDetails, false);
+      const result = await service.create(mockSessionMetadata, mockDatabaseWithCloudDetails, false);
 
       expect(result).toEqual(mockDatabaseWithCloudDetails);
       expect(caCertRepository.create).not.toHaveBeenCalled();
@@ -291,7 +292,7 @@ describe('LocalDatabaseRepository', () => {
     it('should create standalone database (with existing certificates)', async () => {
       repository.save.mockResolvedValueOnce(mockDatabaseWithTlsAuthEntity);
 
-      const result = await service.create(mockDatabaseWithTlsAuth, false);
+      const result = await service.create(mockSessionMetadata, mockDatabaseWithTlsAuth, false);
 
       expect(result).toEqual(mockDatabaseWithTlsAuth);
       expect(caCertRepository.create).not.toHaveBeenCalled();
@@ -302,6 +303,7 @@ describe('LocalDatabaseRepository', () => {
       repository.save.mockResolvedValueOnce(mockDatabaseWithTlsAuthEntity);
 
       const result = await service.create(
+        mockSessionMetadata,
         omit(cloneClassInstance(mockDatabaseWithTlsAuth), 'caCert.id', 'clientCert.id'),
         false,
       );
@@ -314,7 +316,7 @@ describe('LocalDatabaseRepository', () => {
     it('should throw an error if create called with cloud details and have the same entity', async () => {
       repository.findOneBy.mockResolvedValueOnce(mockDatabaseEntity);
       try {
-        await service.create(mockDatabaseEntityWithCloudDetails, true);
+        await service.create(mockSessionMetadata, mockDatabaseEntityWithCloudDetails, true);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(DatabaseAlreadyExistsException);
@@ -329,12 +331,16 @@ describe('LocalDatabaseRepository', () => {
     it('should update standalone database', async () => {
       repository.merge.mockReturnValue(mockDatabaseEntity);
 
-      const result = await service.update(mockDatabaseId, {
-        ...mockDatabase,
-        caCert: null,
-        clientCert: null,
-        sshOptions: null,
-      });
+      const result = await service.update(
+        mockSessionMetadata,
+        mockDatabaseId,
+        {
+          ...mockDatabase,
+          caCert: null,
+          clientCert: null,
+          sshOptions: null,
+        },
+      );
 
       expect(result).toEqual({
         ...mockDatabase,
@@ -351,7 +357,7 @@ describe('LocalDatabaseRepository', () => {
       repository.findOneBy.mockResolvedValue(mockDatabaseWithSshBasicEntity);
       repository.merge.mockReturnValue(mockDatabaseWithSshBasic);
 
-      const result = await service.update(mockDatabaseId, mockDatabaseWithSshBasic);
+      const result = await service.update(mockSessionMetadata, mockDatabaseId, mockDatabaseWithSshBasic);
 
       expect(result).toEqual(mockDatabaseWithSshBasic);
       expect(caCertRepository.create).not.toHaveBeenCalled();
@@ -362,7 +368,7 @@ describe('LocalDatabaseRepository', () => {
       repository.findOneBy.mockResolvedValue(mockDatabaseWithSshPrivateKeyEntity);
       repository.merge.mockReturnValue(mockDatabaseWithSshPrivateKey);
 
-      const result = await service.update(mockDatabaseId, mockDatabaseWithSshPrivateKey);
+      const result = await service.update(mockSessionMetadata, mockDatabaseId, mockDatabaseWithSshPrivateKey);
 
       expect(result).toEqual(mockDatabaseWithSshPrivateKey);
       expect(caCertRepository.create).not.toHaveBeenCalled();
@@ -374,7 +380,7 @@ describe('LocalDatabaseRepository', () => {
       repository.findOneBy.mockResolvedValueOnce(mockDatabaseWithTlsAuthEntity);
       repository.findOneBy.mockResolvedValueOnce(mockDatabaseWithTlsAuthEntity);
 
-      const result = await service.update(mockDatabaseId, mockDatabaseWithTlsAuth);
+      const result = await service.update(mockSessionMetadata, mockDatabaseId, mockDatabaseWithTlsAuth);
 
       expect(result).toEqual(mockDatabaseWithTlsAuth);
       expect(caCertRepository.create).not.toHaveBeenCalled();
@@ -387,6 +393,7 @@ describe('LocalDatabaseRepository', () => {
       repository.findOneBy.mockResolvedValueOnce(mockDatabaseWithTlsAuthEntity);
 
       const result = await service.update(
+        mockSessionMetadata,
         mockDatabaseId,
         omit(mockDatabaseWithTlsAuth, 'caCert.id', 'clientCert.id'),
       );
@@ -399,7 +406,7 @@ describe('LocalDatabaseRepository', () => {
 
   describe('delete', () => {
     it('should delete database by id', async () => {
-      expect(await service.delete(mockDatabaseId)).toEqual(undefined);
+      expect(await service.delete(mockSessionMetadata, mockDatabaseId)).toEqual(undefined);
     });
   });
 });

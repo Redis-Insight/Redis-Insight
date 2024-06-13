@@ -22,7 +22,7 @@ import { WorkbenchClientMetadata } from 'src/modules/workbench/decorators/workbe
 
 @ApiTags('Workbench')
 @UsePipes(new ValidationPipe({ transform: true }))
-@Controller('workbench')
+@Controller('workbench/command-executions')
 export class WorkbenchController {
   constructor(private service: WorkbenchService) { }
 
@@ -36,7 +36,7 @@ export class WorkbenchController {
       },
     ],
   })
-  @Post('/command-executions')
+  @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiRedisParams()
   async sendCommands(
@@ -57,13 +57,13 @@ export class WorkbenchController {
       },
     ],
   })
-  @Get('/command-executions')
+  @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiRedisParams()
   async listCommandExecutions(
-    @Param('dbInstance') databaseId: string,
+    @WorkbenchClientMetadata() clientMetadata: ClientMetadata,
   ): Promise<ShortCommandExecution[]> {
-    return this.service.listCommandExecutions(databaseId);
+    return this.service.listCommandExecutions(clientMetadata);
   }
 
   @ApiEndpoint({
@@ -76,38 +76,38 @@ export class WorkbenchController {
       },
     ],
   })
-  @Get('/command-executions/:id')
+  @Get('/:id')
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiRedisParams()
   async getCommandExecution(
-    @Param('dbInstance') databaseId: string,
+    @WorkbenchClientMetadata() clientMetadata: ClientMetadata,
       @Param('id') id: string,
   ): Promise<CommandExecution> {
-    return this.service.getCommandExecution(databaseId, id);
+    return this.service.getCommandExecution(clientMetadata, id);
   }
 
   @ApiEndpoint({
     description: 'Delete command execution',
     statusCode: 200,
   })
-  @Delete('/command-executions/:id')
+  @Delete('/:id')
   @ApiRedisParams()
   async deleteCommandExecution(
-    @Param('dbInstance') databaseId: string,
+    @WorkbenchClientMetadata() clientMetadata: ClientMetadata,
       @Param('id') id: string,
   ): Promise<void> {
-    return this.service.deleteCommandExecution(databaseId, id);
+    return this.service.deleteCommandExecution(clientMetadata, id);
   }
 
   @ApiEndpoint({
     description: 'Delete command executions',
     statusCode: 200,
   })
-  @Delete('/command-executions')
+  @Delete()
   @ApiRedisParams()
   async deleteCommandExecutions(
-    @Param('dbInstance') databaseId: string,
+    @WorkbenchClientMetadata() clientMetadata: ClientMetadata,
   ): Promise<void> {
-    return this.service.deleteCommandExecutions(databaseId);
+    return this.service.deleteCommandExecutions(clientMetadata);
   }
 }

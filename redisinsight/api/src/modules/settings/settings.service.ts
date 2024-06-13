@@ -21,6 +21,7 @@ import { classToClass } from 'src/utils';
 import { AgreementsRepository } from 'src/modules/settings/repositories/agreements.repository';
 import { FeatureServerEvents } from 'src/modules/feature/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SessionMetadata } from 'src/common/models';
 import { GetAgreementsSpecResponse, GetAppSettingsResponse, UpdateSettingsDto } from './dto/settings.dto';
 
 const SERVER_CONFIG = config.get('server') as Config['server'];
@@ -41,11 +42,11 @@ export class SettingsService {
   /**
    * Method to get settings
    */
-  public async getAppSettings(userId: string): Promise<GetAppSettingsResponse> {
+  public async getAppSettings(sessionMetadata: SessionMetadata): Promise<GetAppSettingsResponse> {
     this.logger.log('Getting application settings.');
     try {
-      const agreements = await this.agreementRepository.getOrCreate(userId);
-      const settings = await this.settingsRepository.getOrCreate(userId);
+      const agreements = await this.agreementRepository.getOrCreate(sessionMetadata);
+      const settings = await this.settingsRepository.getOrCreate(sessionMetadata);
       this.logger.log('Succeed to get application settings.');
       return classToClass(GetAppSettingsResponse, {
         ...settings?.data,
@@ -62,19 +63,19 @@ export class SettingsService {
 
   /**
    * Method to update application settings and agreements
+   * @param sessionMetadata
    * @param dto
-   * @param userId
    */
   public async updateAppSettings(
-    userId: string,
+    sessionMetadata: SessionMetadata,
     dto: UpdateSettingsDto,
   ): Promise<GetAppSettingsResponse> {
     this.logger.log('Updating application settings.');
     const { agreements, ...settings } = dto;
     try {
-      const oldAppSettings = await this.getAppSettings(userId);
+      const oldAppSettings = await this.getAppSettings(sessionMetadata);
       if (!isEmpty(settings)) {
-        const model = await this.settingsRepository.getOrCreate(userId);
+        const model = await this.settingsRepository.getOrCreate(sessionMetadata);
         const toUpdate = {
           ...model,
           data: {
@@ -83,13 +84,13 @@ export class SettingsService {
           },
         };
 
-        await this.settingsRepository.update(userId, toUpdate);
+        await this.settingsRepository.update(sessionMetadata, toUpdate);
       }
       if (agreements) {
-        await this.updateAgreements(userId, agreements);
+        await this.updateAgreements(sessionMetadata, agreements);
       }
       this.logger.log('Succeed to update application settings.');
-      const results = await this.getAppSettings(userId);
+      const results = await this.getAppSettings(sessionMetadata);
       this.analytics.sendSettingsUpdatedEvent(results, oldAppSettings);
 
       this.eventEmitter.emit(FeatureServerEvents.FeaturesRecalculate);
@@ -151,11 +152,11 @@ export class SettingsService {
   }
 
   private async updateAgreements(
-    userId: string,
+    sessionMetadata: SessionMetadata,
     dtoAgreements: Map<string, boolean> = new Map(),
   ): Promise<void> {
     this.logger.log('Updating application agreements.');
-    const oldAgreements = await this.agreementRepository.getOrCreate(userId);
+    const oldAgreements = await this.agreementRepository.getOrCreate(sessionMetadata);
 
     const newAgreements = {
       ...oldAgreements,
@@ -178,7 +179,7 @@ export class SettingsService {
       throw new AgreementIsNotDefinedException(messages);
     }
 
-    await this.agreementRepository.update(userId, newAgreements);
+    await this.agreementRepository.update(sessionMetadata, newAgreements);
 
     if (dtoAgreements.has('analytics')) {
       this.analytics.sendAnalyticsAgreementChange(

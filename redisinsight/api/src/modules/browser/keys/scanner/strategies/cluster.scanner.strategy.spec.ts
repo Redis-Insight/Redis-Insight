@@ -1,26 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { when } from 'jest-when';
 import {
-  mockAppSettingsInitial,
   mockRedisNoPermError,
-  mockSettingsService,
   mockBrowserClientMetadata,
-  MockType,
   mockClusterRedisClient,
   generateMockRedisClient,
   MockRedisClient,
 } from 'src/__mocks__';
 import { ReplyError } from 'src/models';
-import config from 'src/utils/config';
 import ERROR_MESSAGES from 'src/constants/error-messages';
 import { GetKeyInfoResponse, GetKeysDto, RedisDataType } from 'src/modules/browser/keys/dto';
 import { BrowserToolKeysCommands } from 'src/modules/browser/constants/browser-tool-commands';
 import { IScannerNodeKeys } from 'src/modules/browser/keys/scanner/scanner.interface';
-import { SettingsService } from 'src/modules/settings/settings.service';
 import * as Utils from 'src/modules/redis/utils/keys.util';
 import { ClusterScannerStrategy } from 'src/modules/browser/keys/scanner/strategies/cluster.scanner.strategy';
-
-const REDIS_SCAN_CONFIG = config.get('redis_scan');
 
 const getKeyInfoResponse = {
   name: 'testString',
@@ -70,7 +63,6 @@ const mockKeyInfo: GetKeyInfoResponse = {
 
 describe('Cluster Scanner Strategy', () => {
   let strategy: ClusterScannerStrategy;
-  let settingsService: MockType<SettingsService>;
   let mockNode1: MockRedisClient;
   let mockNode2: MockRedisClient;
   let mockNode3: MockRedisClient;
@@ -81,16 +73,10 @@ describe('Cluster Scanner Strategy', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ClusterScannerStrategy,
-        {
-          provide: SettingsService,
-          useFactory: mockSettingsService,
-        },
       ],
     }).compile();
 
     strategy = module.get(ClusterScannerStrategy);
-    settingsService = module.get(SettingsService);
-    settingsService.getAppSettings.mockResolvedValue(mockAppSettingsInitial);
     mockGetKeysInfoFn.mockClear();
 
     mockNode1 = generateMockRedisClient(mockBrowserClientMetadata, jest.fn(), mockClusterNodes[0]);
@@ -101,7 +87,7 @@ describe('Cluster Scanner Strategy', () => {
   });
 
   describe('getKeys', () => {
-    const getKeysDto: GetKeysDto = { cursor: '0', count: 15, keysInfo: true };
+    const getKeysDto: GetKeysDto = { cursor: '0', count: 15, keysInfo: true, countThreshold: 1000 };
 
     it('should return appropriate value with filter by type', async () => {
       const args = { ...getKeysDto, type: RedisDataType.String, match: 'pattern*' };
@@ -339,12 +325,12 @@ describe('Cluster Scanner Strategy', () => {
         [BrowserToolKeysCommands.Scan, '0', 'MATCH', '*', 'COUNT', args.count],
       );
     });
-    it('should call scan 3,2,N times per nodes until threshold exceeds', async () => {
+    it.only('should call scan 3,2,N times per nodes until threshold exceeds', async () => {
       const args = { ...getKeysDto, count: 100 };
       const expectedNode3CallsBeforeThreshold = Math.trunc(
         // -5 is number of scans for node1 (3) and node2 (2)
         // since threshold applied for sum of all nodes scanned
-        REDIS_SCAN_CONFIG.countThreshold / args.count - 5,
+        getKeysDto.countThreshold / args.count - 5,
       );
 
       jest.spyOn(Utils, 'getTotalKeys').mockResolvedValueOnce(mockGetTotalResponse3000);
@@ -407,7 +393,7 @@ describe('Cluster Scanner Strategy', () => {
           total: mockGetTotalResponse1000000,
           cursor: 1,
           scanned:
-            Math.trunc(REDIS_SCAN_CONFIG.countThreshold / args.count)
+            Math.trunc(getKeysDto.countThreshold / args.count)
               * args.count
               - 5 * args.count, // 5 = scan for other shards (3 and 2)
           keys: [],

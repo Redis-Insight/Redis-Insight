@@ -139,6 +139,7 @@ export class WorkbenchService {
 
     if (dto.resultsMode === ResultsMode.GroupMode || dto.resultsMode === ResultsMode.Silent) {
       return this.commandExecutionRepository.createMany(
+        clientMetadata.sessionMetadata,
         [await this.createCommandsExecution(client, dto, dto.commands, dto.resultsMode === ResultsMode.Silent)],
       );
     }
@@ -152,46 +153,46 @@ export class WorkbenchService {
 
     // save history
     // todo: rework
-    return this.commandExecutionRepository.createMany(commandExecutions);
+    return this.commandExecutionRepository.createMany(clientMetadata.sessionMetadata, commandExecutions);
   }
 
   /**
    * Get list command execution history per instance (last 30 items)
    *
-   * @param databaseId
+   * @param clientMetadata
    */
-  async listCommandExecutions(databaseId: string): Promise<ShortCommandExecution[]> {
-    return this.commandExecutionRepository.getList(databaseId);
+  async listCommandExecutions(clientMetadata: ClientMetadata): Promise<ShortCommandExecution[]> {
+    return this.commandExecutionRepository.getList(clientMetadata.sessionMetadata, clientMetadata.databaseId);
   }
 
   /**
    * Get command execution details
    *
-   * @param databaseId
+   * @param clientMetadata
    * @param id
    */
-  async getCommandExecution(databaseId: string, id: string): Promise<CommandExecution> {
-    return this.commandExecutionRepository.getOne(databaseId, id);
+  async getCommandExecution(clientMetadata: ClientMetadata, id: string): Promise<CommandExecution> {
+    return this.commandExecutionRepository.getOne(clientMetadata.sessionMetadata, clientMetadata.databaseId, id);
   }
 
   /**
    * Delete command execution by id and databaseId
    *
-   * @param databaseId
+   * @param clientMetadata
    * @param id
    */
-  async deleteCommandExecution(databaseId: string, id: string): Promise<void> {
-    await this.commandExecutionRepository.delete(databaseId, id);
-    this.analyticsService.sendCommandDeletedEvent(databaseId);
+  async deleteCommandExecution(clientMetadata: ClientMetadata, id: string): Promise<void> {
+    await this.commandExecutionRepository.delete(clientMetadata.sessionMetadata, clientMetadata.databaseId, id);
+    this.analyticsService.sendCommandDeletedEvent(clientMetadata.databaseId);
   }
 
   /**
    * Delete command executions by databaseId
    *
-   * @param databaseId
+   * @param clientMetadata
    */
-  async deleteCommandExecutions(databaseId: string): Promise<void> {
-    await this.commandExecutionRepository.deleteAll(databaseId);
+  async deleteCommandExecutions(clientMetadata: ClientMetadata): Promise<void> {
+    await this.commandExecutionRepository.deleteAll(clientMetadata.sessionMetadata, clientMetadata.databaseId);
   }
 
   /**

@@ -4,6 +4,7 @@ import { BulkActionsProvider } from 'src/modules/bulk-actions/providers/bulk-act
 import { CreateBulkActionDto } from 'src/modules/bulk-actions/dto/create-bulk-action.dto';
 import { BulkActionIdDto } from 'src/modules/bulk-actions/dto/bulk-action-id.dto';
 import { BulkActionsAnalytics } from 'src/modules/bulk-actions/bulk-actions.analytics';
+import { SessionMetadata } from 'src/common/models';
 
 @Injectable()
 export class BulkActionsService {
@@ -12,8 +13,8 @@ export class BulkActionsService {
     private readonly analytics: BulkActionsAnalytics,
   ) {}
 
-  async create(dto: CreateBulkActionDto, socket: Socket) {
-    const bulkAction = await this.bulkActionsProvider.create(dto, socket);
+  async create(sessionMetadata: SessionMetadata, dto: CreateBulkActionDto, socket: Socket) {
+    const bulkAction = await this.bulkActionsProvider.create(sessionMetadata, dto, socket);
     const overview = bulkAction.getOverview();
 
     this.analytics.sendActionStarted(overview);

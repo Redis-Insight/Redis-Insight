@@ -4,7 +4,7 @@ import { RedisObserverStatus } from 'src/modules/profiler/constants';
 import { withTimeout } from 'src/utils/promise-with-timeout';
 import ERROR_MESSAGES from 'src/constants/error-messages';
 import config, { Config } from 'src/utils/config';
-import { ClientContext, ClientMetadata } from 'src/common/models';
+import { ClientContext, ClientMetadata, SessionMetadata } from 'src/common/models';
 import { DatabaseClientFactory } from 'src/modules/database/providers/database.client.factory';
 import { RedisClient } from 'src/modules/redis/client';
 import { RedisClientLib } from 'src/modules/redis/redis.client.factory';
@@ -23,9 +23,10 @@ export class RedisObserverProvider {
 
   /**
    * Get existing redis observer or create a new one
+   * @param sessionMetadata
    * @param instanceId
    */
-  async getOrCreateObserver(instanceId: string): Promise<RedisObserver> {
+  async getOrCreateObserver(sessionMetadata: SessionMetadata, instanceId: string): Promise<RedisObserver> {
     this.logger.log('Getting redis observer...');
 
     let redisObserver = this.redisObservers.get(instanceId);
@@ -39,7 +40,7 @@ export class RedisObserverProvider {
         // todo: add multi user support
         // initialize redis observer
         redisObserver.init(this.getRedisClientFn({
-          sessionMetadata: undefined,
+          sessionMetadata,
           databaseId: instanceId,
           context: ClientContext.Profiler,
         })).catch();
@@ -55,7 +56,7 @@ export class RedisObserverProvider {
             // todo: add multiuser support
             // try to reconnect
             redisObserver.init(this.getRedisClientFn({
-              sessionMetadata: undefined,
+              sessionMetadata,
               databaseId: instanceId,
               context: ClientContext.Profiler,
             })).catch();

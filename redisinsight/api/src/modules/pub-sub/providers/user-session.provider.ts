@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { UserSession } from 'src/modules/pub-sub/model/user-session';
 import { UserClient } from 'src/modules/pub-sub/model/user-client';
 import { RedisClientProvider } from 'src/modules/pub-sub/providers/redis-client.provider';
-import { ClientContext } from 'src/common/models';
+import { ClientContext, SessionMetadata } from 'src/common/models';
 
 @Injectable()
 export class UserSessionProvider {
@@ -12,15 +12,14 @@ export class UserSessionProvider {
 
   constructor(private readonly redisClientProvider: RedisClientProvider) {}
 
-  getOrCreateUserSession(userClient: UserClient) {
+  getOrCreateUserSession(sessionMetadata: SessionMetadata, userClient: UserClient) {
     let session = this.getUserSession(userClient.getId());
 
     if (!session) {
       session = new UserSession(
         userClient,
-        // todo: add multi user support
         this.redisClientProvider.createClient({
-          sessionMetadata: undefined,
+          sessionMetadata,
           databaseId: userClient.getDatabaseId(),
           context: ClientContext.Common,
         }),

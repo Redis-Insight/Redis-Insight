@@ -11,6 +11,7 @@ import {
   mockRedisClientStorage,
   mockRedisClientFactory,
   mockStandaloneRedisClient,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { DatabaseAnalytics } from 'src/modules/database/database.analytics';
 import { DatabaseService } from 'src/modules/database/database.service';
@@ -84,14 +85,15 @@ describe('DatabaseClientFactory', () => {
   describe('createClient', () => {
     it('should create new client and not update connection type', async () => {
       expect(await service.createClient(mockCommonClientMetadata)).toEqual(mockStandaloneRedisClient);
-      expect(databaseService.get).toHaveBeenCalledWith(mockCommonClientMetadata.databaseId);
+      expect(databaseService.get).toHaveBeenCalledWith(mockSessionMetadata, mockCommonClientMetadata.databaseId);
       expect(databaseRepository.update).not.toHaveBeenCalled();
     });
     it('should create new client and update connection type (first connection)', async () => {
       databaseService.get.mockResolvedValueOnce({ ...mockDatabase, connectionType: ConnectionType.NOT_CONNECTED });
       expect(await service.createClient(mockCommonClientMetadata)).toEqual(mockStandaloneRedisClient);
-      expect(databaseService.get).toHaveBeenCalledWith(mockCommonClientMetadata.databaseId);
+      expect(databaseService.get).toHaveBeenCalledWith(mockSessionMetadata, mockCommonClientMetadata.databaseId);
       expect(databaseRepository.update).toHaveBeenCalledWith(
+        mockSessionMetadata,
         mockCommonClientMetadata.databaseId,
         {
           connectionType: mockDatabase.connectionType,

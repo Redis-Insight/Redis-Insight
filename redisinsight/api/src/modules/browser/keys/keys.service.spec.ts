@@ -212,7 +212,7 @@ describe('KeysService', () => {
   });
 
   describe('getKeys', () => {
-    const getKeysDto: GetKeysDto = { cursor: '0', count: 15 };
+    const getKeysDto: GetKeysDto = { cursor: '0', count: 15, countThreshold: 10000 };
     it('should return appropriate value for standalone database', async () => {
       mockScannerStrategy.getKeys.mockResolvedValue([mockGetKeysWithDetailsResponse]);
 

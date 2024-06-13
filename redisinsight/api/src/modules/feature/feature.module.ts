@@ -1,5 +1,6 @@
 import { Module, Type } from '@nestjs/common';
 import { FeatureController } from 'src/modules/feature/feature.controller';
+import { LocalFeatureService } from 'src/modules/feature/local.feature.service';
 import { FeatureService } from 'src/modules/feature/feature.service';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 import { FeaturesConfigRepository } from 'src/modules/feature/repositories/features-config.repository';
@@ -16,16 +17,20 @@ export class FeatureModule {
   static register(
     featureRepository: Type<FeatureRepository> = LocalFeatureRepository,
     featuresConfigRepository: Type<FeaturesConfigRepository> = LocalFeaturesConfigRepository,
+    featureService: Type<FeatureService> = LocalFeatureService,
   ) {
     return {
       module: FeatureModule,
       controllers: [FeatureController],
       providers: [
-        FeatureService,
         FeaturesConfigService,
         FeatureFlagProvider,
         FeatureGateway,
         FeatureAnalytics,
+        {
+          provide: FeatureService,
+          useClass: featureService,
+        },
         {
           provide: FeatureRepository,
           useClass: featureRepository,

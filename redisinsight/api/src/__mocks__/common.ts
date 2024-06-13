@@ -1,12 +1,14 @@
 import { ClientContext, ClientMetadata, SessionMetadata } from 'src/common/models';
 import { mockDatabase } from 'src/__mocks__/databases';
 import { v4 as uuidv4 } from 'uuid';
+import { mockUserId } from 'src/__mocks__/user';
 
 export type MockType<T> = {
   [P in keyof T]: jest.Mock<any>;
 };
 
 export const mockQueryBuilderWhere = jest.fn().mockReturnThis();
+export const mockQueryBuilderSelect = jest.fn().mockReturnThis();
 export const mockQueryBuilderGetOne = jest.fn();
 export const mockQueryBuilderGetMany = jest.fn();
 export const mockQueryBuilderGetManyRaw = jest.fn();
@@ -17,7 +19,7 @@ export const mockCreateQueryBuilder = jest.fn(() => ({
   where: mockQueryBuilderWhere,
   orWhere: mockQueryBuilderWhere,
   update: jest.fn().mockReturnThis(),
-  select: jest.fn().mockReturnThis(),
+  select: mockQueryBuilderSelect,
   set: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   groupBy: jest.fn().mockReturnThis(),
@@ -52,7 +54,7 @@ export const mockRepository = jest.fn(() => ({
 }));
 
 export const mockSessionMetadata: SessionMetadata = {
-  userId: uuidv4(),
+  userId: mockUserId,
   sessionId: uuidv4(),
 };
 

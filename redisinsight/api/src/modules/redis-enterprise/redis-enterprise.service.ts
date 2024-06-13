@@ -27,7 +27,7 @@ import {
 } from 'src/modules/redis-enterprise/dto/redis-enterprise-cluster.dto';
 import { HostingProvider } from 'src/modules/database/entities/database.entity';
 import { DatabaseService } from 'src/modules/database/database.service';
-import { ActionStatus } from 'src/common/models';
+import { ActionStatus, SessionMetadata } from 'src/common/models';
 
 @Injectable()
 export class RedisEnterpriseService {
@@ -185,6 +185,7 @@ export class RedisEnterpriseService {
   }
 
   public async addRedisEnterpriseDatabases(
+    sessionMetadata: SessionMetadata,
     connectionDetails: ClusterConnectionDetailsDto,
     uids: number[],
   ): Promise<AddRedisEnterpriseDatabaseResponse[]> {
@@ -215,14 +216,17 @@ export class RedisEnterpriseService {
               } = database;
               const host = connectionDetails.host === 'localhost' ? 'localhost' : dnsName;
               delete database.password;
-              await this.databaseService.create({
-                host,
-                port,
-                name,
-                nameFromProvider: name,
-                password,
-                provider: HostingProvider.RE_CLUSTER,
-              });
+              await this.databaseService.create(
+                sessionMetadata,
+                {
+                  host,
+                  port,
+                  name,
+                  nameFromProvider: name,
+                  password,
+                  provider: HostingProvider.RE_CLUSTER,
+                },
+              );
               return {
                 uid,
                 status: ActionStatus.Success,

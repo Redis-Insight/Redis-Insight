@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  mockClientMetadata,
   mockDatabase,
   mockDatabaseClientFactory,
   mockWhitelistCommandsResponse,
@@ -169,7 +170,7 @@ describe('PluginsService', () => {
       const dto = {
         state: mockState,
       };
-      const result = await service.saveState(mockVisualizationId, mockCommandExecutionId, dto);
+      const result = await service.saveState(mockClientMetadata, mockVisualizationId, mockCommandExecutionId, dto);
 
       expect(result).toEqual(undefined);
     });
@@ -180,7 +181,7 @@ describe('PluginsService', () => {
         const dto = {
           state: Buffer.alloc(PLUGINS_CONFIG.stateMaxSize + 1, 0),
         };
-        await service.saveState(mockVisualizationId, mockCommandExecutionId, dto);
+        await service.saveState(mockClientMetadata, mockVisualizationId, mockCommandExecutionId, dto);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(BadRequestException);
@@ -193,7 +194,7 @@ describe('PluginsService', () => {
     it('should successfully get state', async () => {
       pluginStateProvider.getOne.mockResolvedValueOnce(mockPluginState);
 
-      const result = await service.getState(mockVisualizationId, mockCommandExecutionId);
+      const result = await service.getState(mockClientMetadata, mockVisualizationId, mockCommandExecutionId);
 
       expect(result).toEqual(mockPluginState);
     });

@@ -60,7 +60,9 @@ export class DatabaseInfoService {
     this.logger.log(`Connection to database index: ${db}`);
 
     let client;
-    const prevDb = clientMetadata.db ?? (await this.databaseService.get(clientMetadata.databaseId))?.db ?? 0;
+    const prevDb = clientMetadata.db
+      ?? (await this.databaseService.get(clientMetadata.sessionMetadata, clientMetadata.databaseId))?.db
+      ?? 0;
 
     try {
       client = await this.databaseClientFactory.createClient({

@@ -31,9 +31,9 @@ export class DatabaseRecommendationService {
    * @param entity
    */
   public async create(clientMetadata: ClientMetadata, entity: DatabaseRecommendation): Promise<DatabaseRecommendation> {
-    const recommendation = await this.databaseRecommendationRepository.create(entity);
+    const recommendation = await this.databaseRecommendationRepository.create(clientMetadata.sessionMetadata, entity);
 
-    const database = await this.databaseService.get(clientMetadata?.databaseId);
+    const database = await this.databaseService.get(clientMetadata.sessionMetadata, clientMetadata?.databaseId);
 
     this.analytics.sendCreatedRecommendationEvent(recommendation, database);
 
@@ -46,7 +46,9 @@ export class DatabaseRecommendationService {
    */
   async list(clientMetadata: ClientMetadata): Promise<DatabaseRecommendationsResponse> {
     this.logger.log('Getting database recommendations');
-    const db = clientMetadata.db ?? (await this.databaseService.get(clientMetadata.databaseId))?.db ?? 0;
+    const db = clientMetadata.db
+      ?? (await this.databaseService.get(clientMetadata.sessionMetadata, clientMetadata.databaseId))?.db
+      ?? 0;
     return this.databaseRecommendationRepository.list({ ...clientMetadata, db });
   }
 
@@ -64,7 +66,9 @@ export class DatabaseRecommendationService {
     try {
       const newClientMetadata = {
         ...clientMetadata,
-        db: clientMetadata.db ?? (await this.databaseService.get(clientMetadata.databaseId))?.db ?? 0,
+        db: clientMetadata.db
+          ?? (await this.databaseService.get(clientMetadata.sessionMetadata, clientMetadata.databaseId))?.db
+          ?? 0,
       };
       const isRecommendationExist = await this.databaseRecommendationRepository.isExist(
         newClientMetadata,

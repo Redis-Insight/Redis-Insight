@@ -38,6 +38,21 @@ export const initialState: StateAppFeatures = {
       [FeatureFlags.databaseChat]: {
         flag: false
       },
+      [FeatureFlags.appSettings]: {
+        flag: false
+      },
+      [FeatureFlags.profiler]: {
+        flag: false
+      },
+      [FeatureFlags.dbAnalysis]: {
+        flag: false
+      },
+      [FeatureFlags.appNotifications]: {
+        flag: false
+      },
+      [FeatureFlags.triggersAndFunctions]: {
+        flag: false
+      }
     }
   }
 }

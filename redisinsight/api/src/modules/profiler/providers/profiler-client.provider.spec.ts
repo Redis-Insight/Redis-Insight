@@ -3,6 +3,7 @@ import { LogFileProvider } from 'src/modules/profiler/providers/log-file.provide
 import {
   mockDatabaseService,
   mockLogFile, mockLogFileProvider, mockMonitorSettings,
+  mockSessionMetadata,
   mockSocket,
   MockType,
 } from 'src/__mocks__';
@@ -38,6 +39,7 @@ describe('ProfilerClientProvider', () => {
 
   it('getOrCreateClient', async () => {
     await service.getOrCreateClient(
+      mockSessionMetadata,
       mockLogFile.instanceId,
       mockSocket,
       null,
@@ -48,6 +50,7 @@ describe('ProfilerClientProvider', () => {
     expect(logFileProvider.getOrCreate).not.toHaveBeenCalled();
 
     await service.getOrCreateClient(
+      mockSessionMetadata,
       mockLogFile.instanceId,
       { ...mockSocket, id: '2' },
       mockMonitorSettings,
@@ -60,6 +63,7 @@ describe('ProfilerClientProvider', () => {
 
   it('getClient', async () => {
     const profilerClient = await service.getOrCreateClient(
+      mockSessionMetadata,
       mockLogFile.instanceId,
       mockSocket,
       null,

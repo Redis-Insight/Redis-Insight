@@ -103,6 +103,7 @@ export class MeCloudAutodiscoveryService {
     return this.api.callWithAuthRetry(sessionMetadata.sessionId, async () => {
       try {
         return await this.cloudAutodiscoveryService.addRedisCloudDatabases(
+          sessionMetadata,
           await this.getCapiCredentials(sessionMetadata, utm),
           addDatabasesDto,
         );

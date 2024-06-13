@@ -16,7 +16,7 @@ export const mockBrowserHistoryService = () => ({
   bulkDelete: jest.fn(),
 });
 
-export const mockBrowserHistoryProvider = jest.fn(() => ({
+export const mockBrowserHistoryRepository = jest.fn(() => ({
   create: jest.fn(),
   get: jest.fn(),
   list: jest.fn(),

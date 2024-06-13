@@ -4,15 +4,16 @@ import {
 } from 'src/modules/database-recommendation/dto/database-recommendations.response';
 import { ModifyDatabaseRecommendationDto } from 'src/modules/database-recommendation/dto';
 import { Recommendation } from 'src/modules/database-analysis/models/recommendation';
-import { ClientMetadata } from 'src/common/models';
+import { ClientMetadata, SessionMetadata } from 'src/common/models';
 
 export abstract class DatabaseRecommendationRepository {
   /**
    * Create new recommendation
+   * @param sessionMetadata
    * @param entity
    * @return DatabaseRecommendation
    */
-  abstract create(entity: DatabaseRecommendation): Promise<DatabaseRecommendation>;
+  abstract create(sessionMetadata: SessionMetadata, entity: DatabaseRecommendation): Promise<DatabaseRecommendation>;
 
   /**
    * Get all recommendations from database
@@ -20,7 +21,7 @@ export abstract class DatabaseRecommendationRepository {
    * @param clientMetadata
    * @return DatabaseRecommendationsResponse
    */
-  abstract list(clientMetadata :ClientMetadata): Promise<DatabaseRecommendationsResponse>;
+  abstract list(clientMetadata: ClientMetadata): Promise<DatabaseRecommendationsResponse>;
 
   /**
    * Mark all recommendations as read by database id
@@ -35,7 +36,10 @@ export abstract class DatabaseRecommendationRepository {
    * @param recommendation
    * @return DatabaseRecommendation
    */
-  abstract update(clientMetadata: ClientMetadata, id: string, recommendation: ModifyDatabaseRecommendationDto): Promise<DatabaseRecommendation>;
+  abstract update(
+    clientMetadata: ClientMetadata,
+    id: string, recommendation: ModifyDatabaseRecommendationDto
+  ): Promise<DatabaseRecommendation>;
 
   /**
    * Check is recommendation already exist in repository
@@ -47,10 +51,11 @@ export abstract class DatabaseRecommendationRepository {
 
   /**
    * Get database recommendation by id
+   * @param sessionMetadata
    * @param id
    * @return DatabaseRecommendation
    */
-  abstract get(id: string): Promise<DatabaseRecommendation>;
+  abstract get(sessionMetadata: SessionMetadata, id: string): Promise<DatabaseRecommendation>;
 
   /**
    * Sync db analysis recommendations with insights recommendations
@@ -65,4 +70,9 @@ export abstract class DatabaseRecommendationRepository {
    * @param id
    */
   abstract delete(clientMetadata: ClientMetadata, id: string): Promise<void>;
+
+  /**
+   * Get total unread recommendations
+   */
+  abstract getTotalUnread(clientMetadata: ClientMetadata, databaseId: string): Promise<number>;
 }

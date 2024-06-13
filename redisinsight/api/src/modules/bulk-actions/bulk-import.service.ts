@@ -193,7 +193,7 @@ export class BulkImportService {
     clientMetadata: ClientMetadata,
   ): Promise<IBulkActionOverview> {
     try {
-      const database = await this.databaseService.get(clientMetadata.databaseId);
+      const database = await this.databaseService.get(clientMetadata.sessionMetadata, clientMetadata.databaseId);
       const databaseModules = database.modules?.map((module) => module.name.toLowerCase()) || [];
 
       const manifest = JSON.parse(fs.readFileSync(join(PATH_CONFIG.dataDir, 'manifest.json')).toString());

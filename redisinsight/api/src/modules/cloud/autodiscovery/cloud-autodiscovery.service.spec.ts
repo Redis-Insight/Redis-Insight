@@ -12,6 +12,7 @@ import {
   mockImportCloudDatabaseDto, mockImportCloudDatabaseDtoFixed,
   mockImportCloudDatabaseResponse,
   mockImportCloudDatabaseResponseFixed,
+  mockSessionMetadata,
   MockType,
 } from 'src/__mocks__';
 import { DatabaseService } from 'src/modules/database/database.service';
@@ -213,10 +214,14 @@ describe('CloudAutodiscoveryService', () => {
       cloudDatabaseCapiService.getDatabase.mockResolvedValueOnce(mockCloudDatabase);
       cloudDatabaseCapiService.getDatabase.mockResolvedValueOnce(mockCloudDatabaseFixed);
 
-      const result = await service.addRedisCloudDatabases(mockCloudCapiAuthDto, [
-        mockImportCloudDatabaseDto,
-        mockImportCloudDatabaseDtoFixed,
-      ]);
+      const result = await service.addRedisCloudDatabases(
+        mockSessionMetadata,
+        mockCloudCapiAuthDto,
+        [
+          mockImportCloudDatabaseDto,
+          mockImportCloudDatabaseDtoFixed,
+        ],
+      );
 
       expect(result).toEqual([
         mockImportCloudDatabaseResponse,
@@ -227,10 +232,14 @@ describe('CloudAutodiscoveryService', () => {
       cloudDatabaseCapiService.getDatabase.mockRejectedValueOnce(new NotFoundException());
       cloudDatabaseCapiService.getDatabase.mockResolvedValueOnce(mockCloudDatabaseFixed);
 
-      const result = await service.addRedisCloudDatabases(mockCloudCapiAuthDto, [
-        mockImportCloudDatabaseDto,
-        mockImportCloudDatabaseDtoFixed,
-      ]);
+      const result = await service.addRedisCloudDatabases(
+        mockSessionMetadata,
+        mockCloudCapiAuthDto,
+        [
+          mockImportCloudDatabaseDto,
+          mockImportCloudDatabaseDtoFixed,
+        ],
+      );
 
       expect(result).toEqual([
         {
@@ -251,10 +260,14 @@ describe('CloudAutodiscoveryService', () => {
       cloudDatabaseCapiService.getDatabase.mockResolvedValueOnce(mockCloudDatabaseFixed);
       databaseService.create.mockRejectedValueOnce(new Error('Connectivity issue'));
 
-      const result = await service.addRedisCloudDatabases(mockCloudCapiAuthDto, [
-        mockImportCloudDatabaseDto,
-        mockImportCloudDatabaseDtoFixed,
-      ]);
+      const result = await service.addRedisCloudDatabases(
+        mockSessionMetadata,
+        mockCloudCapiAuthDto,
+        [
+          mockImportCloudDatabaseDto,
+          mockImportCloudDatabaseDtoFixed,
+        ],
+      );
 
       expect(result).toEqual([
         {
@@ -272,10 +285,14 @@ describe('CloudAutodiscoveryService', () => {
       });
       cloudDatabaseCapiService.getDatabase.mockResolvedValueOnce(mockCloudDatabaseFixed);
 
-      const result = await service.addRedisCloudDatabases(mockCloudCapiAuthDto, [
-        mockImportCloudDatabaseDto,
-        mockImportCloudDatabaseDtoFixed,
-      ]);
+      const result = await service.addRedisCloudDatabases(
+        mockSessionMetadata,
+        mockCloudCapiAuthDto,
+        [
+          mockImportCloudDatabaseDto,
+          mockImportCloudDatabaseDtoFixed,
+        ],
+      );
 
       expect(result).toEqual([
         {

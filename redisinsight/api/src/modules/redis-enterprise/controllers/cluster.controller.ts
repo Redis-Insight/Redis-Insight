@@ -16,8 +16,9 @@ import {
   AddRedisEnterpriseDatabasesDto,
 } from 'src/modules/redis-enterprise/dto/redis-enterprise-cluster.dto';
 import { Response } from 'express';
-import { ActionStatus } from 'src/common/models';
+import { ActionStatus, SessionMetadata } from 'src/common/models';
 import { BuildType } from 'src/modules/server/models/server';
+import { RequestSessionMetadata } from 'src/common/decorators';
 import { ClusterConnectionDetailsDto, RedisEnterpriseDatabase } from '../dto/cluster.dto';
 
 @ApiTags('Redis Enterprise Cluster')
@@ -64,11 +65,13 @@ export class ClusterController {
   })
   @UsePipes(new ValidationPipe({ transform: true }))
   async addRedisEnterpriseDatabases(
-    @Body() dto: AddRedisEnterpriseDatabasesDto,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: AddRedisEnterpriseDatabasesDto,
       @Res() res: Response,
   ): Promise<Response> {
     const { uids, ...connectionDetails } = dto;
     const result = await this.redisEnterpriseService.addRedisEnterpriseDatabases(
+      sessionMetadata,
       connectionDetails,
       uids,
     );

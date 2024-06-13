@@ -8,6 +8,7 @@ import {
   mockRepository,
   mockDatabase,
   MockType,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { omit } from 'lodash';
 import {
@@ -96,7 +97,7 @@ describe('LocalCommandExecutionRepository', () => {
       repository.save.mockReturnValueOnce([mockCommandExecutionEntity]);
       encryptionService.encrypt.mockReturnValue(mockEncryptResult);
 
-      expect(await service.createMany([mockCommandExecutionPartial])).toEqual([{
+      expect(await service.createMany(mockSessionMetadata, [mockCommandExecutionPartial])).toEqual([{
         ...mockCommandExecutionPartial,
         id: mockCommandExecutionEntity.id,
         createdAt: mockCommandExecutionEntity.createdAt,
@@ -111,7 +112,7 @@ describe('LocalCommandExecutionRepository', () => {
         response: `${Buffer.alloc(WORKBENCH_CONFIG.maxResultSize, 'a').toString()}`,
       }];
 
-      expect(await service.createMany([{
+      expect(await service.createMany(mockSessionMetadata, [{
         ...mockCommandExecutionPartial,
         result: executionResult,
       }])).toEqual([{
@@ -135,7 +136,7 @@ describe('LocalCommandExecutionRepository', () => {
         response: `${Buffer.alloc(WORKBENCH_CONFIG.maxResultSize, 'a').toString()}`,
       }];
 
-      expect(await service.createMany([{
+      expect(await service.createMany(mockSessionMetadata, [{
         ...mockCommandExecutionPartial,
         result: executionResult,
       }])).toEqual([{
@@ -167,7 +168,7 @@ describe('LocalCommandExecutionRepository', () => {
         createdAt: mockCommandExecutionEntity.createdAt,
       });
 
-      expect(await service.getList(mockCommandExecutionEntity.databaseId)).toEqual([
+      expect(await service.getList(mockSessionMetadata, mockCommandExecutionEntity.databaseId)).toEqual([
         commandExecution,
         commandExecution,
       ]);
@@ -184,7 +185,7 @@ describe('LocalCommandExecutionRepository', () => {
         createdAt: mockCommandExecutionEntity.createdAt,
       });
 
-      expect(await service.getList(mockCommandExecutionEntity.databaseId)).toEqual([
+      expect(await service.getList(mockSessionMetadata, mockCommandExecutionEntity.databaseId)).toEqual([
         commandExecution,
       ]);
     });
@@ -201,7 +202,7 @@ describe('LocalCommandExecutionRepository', () => {
         createdAt: mockCommandExecutionEntity.createdAt,
       });
 
-      expect(await service.getOne(mockDatabase.id, mockCommandExecutionEntity.id)).toEqual(
+      expect(await service.getOne(mockSessionMetadata, mockDatabase.id, mockCommandExecutionEntity.id)).toEqual(
         commandExecution,
       );
     });
@@ -217,7 +218,7 @@ describe('LocalCommandExecutionRepository', () => {
         result: null,
       });
 
-      expect(await service.getOne(mockDatabase.id, mockCommandExecutionEntity.id)).toEqual(
+      expect(await service.getOne(mockSessionMetadata, mockDatabase.id, mockCommandExecutionEntity.id)).toEqual(
         commandExecution,
       );
     });
@@ -225,7 +226,7 @@ describe('LocalCommandExecutionRepository', () => {
       repository.findOneBy.mockResolvedValueOnce(null);
 
       try {
-        await service.getOne(mockDatabase.id, mockCommandExecutionEntity.id);
+        await service.getOne(mockSessionMetadata, mockDatabase.id, mockCommandExecutionEntity.id);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -236,7 +237,7 @@ describe('LocalCommandExecutionRepository', () => {
   describe('delete', () => {
     it('Should not return anything on delete', async () => {
       repository.delete.mockResolvedValueOnce(1);
-      expect(await service.delete(mockDatabase.id, mockCommandExecutionEntity.id)).toEqual(
+      expect(await service.delete(mockSessionMetadata, mockDatabase.id, mockCommandExecutionEntity.id)).toEqual(
         undefined,
       );
     });
@@ -244,7 +245,7 @@ describe('LocalCommandExecutionRepository', () => {
   describe('deleteAll', () => {
     it('Should not return anything on delete', async () => {
       repository.delete.mockResolvedValueOnce(1);
-      expect(await service.deleteAll(mockDatabase.id)).toEqual(
+      expect(await service.deleteAll(mockSessionMetadata, mockDatabase.id)).toEqual(
         undefined,
       );
     });

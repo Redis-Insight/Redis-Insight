@@ -40,3 +40,23 @@ export const mockDatabaseRecommendationService = () => ({
 export const mockDatabaseRecommendationProvider = jest.fn(() => ({
   getStrategy: jest.fn(),
 }));
+
+export const mockDatabaseRecommendationRepository = jest.fn(() => ({
+  create: jest.fn(),
+  list: jest.fn(),
+  read: jest.fn(),
+  update: jest.fn(),
+  isExist: jest.fn(),
+  get: jest.fn(),
+  sync: jest.fn(),
+  delete: jest.fn(),
+  getTotalUnread: jest.fn(),
+}));
+
+export const mockRecommendationScanner = jest.fn(() => ({
+  determineRecommendation: jest.fn(),
+}));
+
+export const mockDatabaseRecommendationAnalytics = jest.fn(() => ({
+  sendCreatedRecommendationEvent: jest.fn(),
+}));

@@ -28,6 +28,7 @@ import {
   ImportCloudDatabaseResponse,
   ImportCloudDatabasesDto,
 } from 'src/modules/cloud/autodiscovery/dto';
+import { RequestSessionMetadata } from 'src/common/decorators';
 
 const cloudConf = config.get('cloud');
 
@@ -115,11 +116,12 @@ export class CloudAutodiscoveryController {
     ],
   })
   async addDiscoveredDatabases(
-    @CloudAuthHeaders() authDto: CloudCapiAuthDto,
+    @RequestSessionMetadata() sessionMetadata,
+      @CloudAuthHeaders() authDto: CloudCapiAuthDto,
       @Body() dto: ImportCloudDatabasesDto,
       @Res() res: Response,
   ): Promise<Response> {
-    const result = await this.service.addRedisCloudDatabases(authDto, dto.databases);
+    const result = await this.service.addRedisCloudDatabases(sessionMetadata, authDto, dto.databases);
     const hasSuccessResult = result.some(
       (addResponse: ImportCloudDatabaseResponse) => addResponse.status === ActionStatus.Success,
     );

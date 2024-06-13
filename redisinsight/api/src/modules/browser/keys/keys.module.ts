@@ -1,10 +1,8 @@
 import {
   DynamicModule,
-  MiddlewareConsumer,
   Module,
 } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
-import { RedisConnectionMiddleware } from 'src/middleware/redis-connection.middleware';
 import { KeysController } from 'src/modules/browser/keys/keys.controller';
 import { StandaloneScannerStrategy } from 'src/modules/browser/keys/scanner/strategies/standalone.scanner.strategy';
 import { ClusterScannerStrategy } from 'src/modules/browser/keys/scanner/strategies/cluster.scanner.strategy';
@@ -58,11 +56,5 @@ export class KeysModule {
         ZSetKeyInfoStrategy,
       ],
     };
-  }
-
-  configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(RedisConnectionMiddleware)
-      .forRoutes(KeysController);
   }
 }

@@ -16,6 +16,8 @@ import {
 import { sendEventTelemetry, TelemetryEvent } from 'uiSrc/telemetry'
 import { monitorSelector, toggleHideMonitor, toggleMonitor } from 'uiSrc/slices/cli/monitor'
 import SurveyIcon from 'uiSrc/assets/img/survey_icon.svg'
+import FeatureFlagComponent from 'uiSrc/components/feature-flag-component'
+import { FeatureFlags } from 'uiSrc/constants'
 
 import styles from '../../styles.module.scss'
 
@@ -109,21 +111,23 @@ const BottomGroupMinimized = () => {
             <span>Command Helper</span>
           </EuiBadge>
         </EuiFlexItem>
-        <EuiFlexItem
-          className={styles.componentBadgeItem}
-          grow={false}
-          onClick={handleExpandMonitor}
-          data-testid="expand-monitor"
-        >
-          <EuiBadge className={cx(
-            styles.componentBadge,
-            { [styles.active]: isShowMonitor || isMinimizedMonitor }
-          )}
+        <FeatureFlagComponent name={FeatureFlags.profiler}>
+          <EuiFlexItem
+            className={styles.componentBadgeItem}
+            grow={false}
+            onClick={handleExpandMonitor}
+            data-testid="expand-monitor"
           >
-            <EuiIcon type="inspect" size="m" />
-            <span>Profiler</span>
-          </EuiBadge>
-        </EuiFlexItem>
+            <EuiBadge className={cx(
+              styles.componentBadge,
+              { [styles.active]: isShowMonitor || isMinimizedMonitor }
+            )}
+            >
+              <EuiIcon type="inspect" size="m" />
+              <span>Profiler</span>
+            </EuiBadge>
+          </EuiFlexItem>
+        </FeatureFlagComponent>
       </EuiFlexGroup>
       <a
         className={styles.surveyLink}

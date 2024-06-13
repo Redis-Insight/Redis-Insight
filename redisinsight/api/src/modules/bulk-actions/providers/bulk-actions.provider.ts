@@ -9,7 +9,7 @@ import {
   DeleteBulkActionSimpleRunner,
 } from 'src/modules/bulk-actions/models/runners/simple/delete.bulk-action.simple.runner';
 import { BulkActionsAnalytics } from 'src/modules/bulk-actions/bulk-actions.analytics';
-import { ClientContext } from 'src/common/models';
+import { ClientContext, SessionMetadata } from 'src/common/models';
 import { DatabaseClientFactory } from 'src/modules/database/providers/database.client.factory';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class BulkActionsProvider {
    * @param dto
    * @param socket
    */
-  async create(dto: CreateBulkActionDto, socket: Socket): Promise<BulkAction> {
+  async create(sessionMetadata: SessionMetadata, dto: CreateBulkActionDto, socket: Socket): Promise<BulkAction> {
     if (this.bulkActions.get(dto.id)) {
       throw new Error('You already have bulk action with such id');
     }
@@ -40,10 +40,7 @@ export class BulkActionsProvider {
     // todo: add multi user support
     // todo: use own client and close it after
     const client = await this.databaseClientFactory.getOrCreateClient({
-      sessionMetadata: {
-        userId: '1',
-        sessionId: '1',
-      },
+      sessionMetadata,
       databaseId: dto.databaseId,
       context: ClientContext.Common,
       db: dto.db,

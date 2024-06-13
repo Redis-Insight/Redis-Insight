@@ -13,6 +13,8 @@ import {
   DeleteBrowserHistoryItemsResponse,
 } from 'src/modules/browser/browser-history/dto';
 import { BrowserHistoryService } from 'src/modules/browser/browser-history/browser-history.service';
+import { SessionMetadata } from 'src/common/models';
+import { RequestSessionMetadata } from 'src/common/decorators';
 
 @UseInterceptors(BrowserSerializeInterceptor)
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -37,10 +39,11 @@ export class BrowserHistoryController {
     enum: BrowserHistoryMode,
   })
   async list(
-    @Param('dbInstance') databaseId: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('dbInstance') databaseId: string,
       @Query() { mode = BrowserHistoryMode.Pattern }: { mode: BrowserHistoryMode },
   ): Promise<BrowserHistory[]> {
-    return this.service.list(databaseId, mode);
+    return this.service.list(sessionMetadata, databaseId, mode);
   }
 
   @Delete('/:id')
@@ -50,10 +53,11 @@ export class BrowserHistoryController {
     description: 'Delete browser history item by id',
   })
   async delete(
-    @Param('dbInstance') databaseId: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('dbInstance') databaseId: string,
       @Param('id') id: string,
   ): Promise<void> {
-    await this.service.delete(databaseId, id);
+    await this.service.delete(sessionMetadata, databaseId, id);
   }
 
   @ApiEndpoint({
@@ -69,9 +73,10 @@ export class BrowserHistoryController {
   @ApiRedisParams()
   @Delete('')
   async bulkDelete(
-    @Param('dbInstance') databaseId: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('dbInstance') databaseId: string,
       @Body() dto: DeleteBrowserHistoryItemsDto,
   ): Promise<DeleteBrowserHistoryItemsResponse> {
-    return this.service.bulkDelete(databaseId, dto.ids);
+    return this.service.bulkDelete(sessionMetadata, databaseId, dto.ids);
   }
 }

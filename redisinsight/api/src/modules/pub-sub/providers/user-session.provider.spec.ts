@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   mockSocket,
   MockType,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { UserSessionProvider } from 'src/modules/pub-sub/providers/user-session.provider';
 import { RedisClientProvider } from 'src/modules/pub-sub/providers/redis-client.provider';
@@ -42,10 +43,10 @@ describe('UserSessionProvider', () => {
   describe('getOrCreateUserSession', () => {
     it('should create new UserSession and store it. Ignore the same session', async () => {
       expect(service['sessions'].size).toEqual(0);
-      const userSession = await service.getOrCreateUserSession(mockUserClient);
+      const userSession = await service.getOrCreateUserSession(mockSessionMetadata, mockUserClient);
       expect(service['sessions'].size).toEqual(1);
       expect(service.getUserSession(userSession.getId())).toEqual(userSession);
-      await service.getOrCreateUserSession(mockUserClient);
+      await service.getOrCreateUserSession(mockSessionMetadata, mockUserClient);
       expect(service['sessions'].size).toEqual(1);
       expect(service.getUserSession(userSession.getId())).toEqual(userSession);
     });
@@ -53,8 +54,8 @@ describe('UserSessionProvider', () => {
   describe('removeUserSession', () => {
     it('should remove UserSession', async () => {
       expect(service['sessions'].size).toEqual(0);
-      await service.getOrCreateUserSession(mockUserClient);
-      await service.getOrCreateUserSession(mockUserClient2);
+      await service.getOrCreateUserSession(mockSessionMetadata, mockUserClient);
+      await service.getOrCreateUserSession(mockSessionMetadata, mockUserClient2);
       expect(service['sessions'].size).toEqual(2);
       await service.removeUserSession(mockUserClient.getId());
       expect(service['sessions'].size).toEqual(1);

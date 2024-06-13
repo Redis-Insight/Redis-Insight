@@ -1,18 +1,26 @@
 import {
   Body,
-  Controller, Get, HttpCode, Patch, UsePipes, ValidationPipe,
+  Controller,
+  Get,
+  HttpCode,
+  Patch,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { NotificationService } from 'src/modules/notification/notification.service';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { NotificationsDto, ReadNotificationsDto } from 'src/modules/notification/dto';
+import { RequestSessionMetadata } from 'src/common/decorators';
+import { SessionMetadata } from 'src/common/models';
+import {
+  NotificationsDto,
+  ReadNotificationsDto,
+} from 'src/modules/notification/dto';
+import { NotificationService } from 'src/modules/notification/notification.service';
 
 @ApiTags('Notifications')
 @Controller('notifications')
 @UsePipes(new ValidationPipe({ transform: true }))
 export class NotificationController {
-  constructor(
-    private readonly service: NotificationService,
-  ) {}
+  constructor(private readonly service: NotificationService) {}
 
   @HttpCode(200)
   @ApiOperation({ description: 'Return ordered notifications history' })
@@ -20,8 +28,10 @@ export class NotificationController {
     type: NotificationsDto,
   })
   @Get()
-  getNotifications(): Promise<NotificationsDto> {
-    return this.service.getNotifications();
+  getNotifications(
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+  ): Promise<NotificationsDto> {
+    return this.service.getNotifications(sessionMetadata);
   }
 
   @HttpCode(200)
@@ -30,7 +40,10 @@ export class NotificationController {
     type: NotificationsDto,
   })
   @Patch('/read')
-  readNotifications(@Body() dto: ReadNotificationsDto): Promise<NotificationsDto> {
-    return this.service.readNotifications(dto);
+  readNotifications(
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: ReadNotificationsDto,
+  ): Promise<NotificationsDto> {
+    return this.service.readNotifications(sessionMetadata, dto);
   }
 }

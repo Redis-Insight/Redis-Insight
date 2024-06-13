@@ -1,5 +1,5 @@
 {
-  "version": 2.4603,
+  "version": 2.47,
   "features": {
     "insightsRecommendations": {
       "flag": true,
@@ -89,6 +89,26 @@
       "data": {
         "strategy": "ioredis"
       }
+    },
+    "appSettings": {
+      "flag": true,
+      "perc": [[0,100]]
+    },
+    "profiler": {
+      "flag": true,
+      "perc": [[0,100]]
+    },
+    "dbAnalysis": {
+      "flag": true,
+      "perc": [[0,100]]
+    },
+    "appNotifications": {
+      "flag": true,
+      "perc": [[0,100]]
+    },
+    "triggersAndFunctions": {
+      "flag": true,
+      "perc": [[0,100]]
     }
   }
 }

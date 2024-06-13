@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
-  mockRepository, mockSettings, mockSettingsEntity,
+  mockRepository, mockSessionMetadata, mockSettings, mockSettingsEntity,
   MockType, mockUserId,
 } from 'src/__mocks__';
 import { LocalSettingsRepository } from 'src/modules/settings/repositories/local.settings.repository';
@@ -54,7 +54,7 @@ describe('LocalSettingsRepository', () => {
 
   describe('update', () => {
     it('should update settings', async () => {
-      const result = await service.update(mockUserId, mockSettings);
+      const result = await service.update(mockSessionMetadata, mockSettings);
 
       expect(result).toEqual(mockSettings);
       expect(repository.update).toHaveBeenCalledWith({}, {

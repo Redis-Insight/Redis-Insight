@@ -1,19 +1,25 @@
-import config from 'src/utils/config';
 import {
-  keyBy, values, forEach, orderBy,
-} from 'lodash';
-import {
-  BadRequestException, Injectable, InternalServerErrorException, Logger,
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
-import { getFile } from 'src/utils';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { plainToClass } from 'class-transformer';
 import { Validator } from 'class-validator';
-import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
-import { NotificationEvents, NotificationType } from 'src/modules/notification/constants';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  forEach, keyBy, orderBy, values,
+} from 'lodash';
+import { SessionMetadata } from 'src/common/models';
+import {
+  NotificationEvents,
+  NotificationType,
+} from 'src/modules/notification/constants';
 import { CreateNotificationsDto } from 'src/modules/notification/dto';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Notification } from 'src/modules/notification/models/notification';
+import { getFile } from 'src/utils';
+import config from 'src/utils/config';
+import { NotificationRepository } from '../repositories/notification.repository';
 
 const NOTIFICATIONS_CONFIG = config.get('notifications');
 
@@ -23,53 +29,49 @@ export class GlobalNotificationProvider {
 
   private validator = new Validator();
 
-  private interval;
+  private interval: NodeJS.Timeout;
 
   constructor(
-    @InjectRepository(NotificationEntity)
-    private repository: Repository<NotificationEntity>,
+    private notificationRepository: NotificationRepository,
     private eventEmitter: EventEmitter2,
   ) {}
 
-  init() {
+  init(sessionMetadata: SessionMetadata) {
     if (this.interval) {
       return;
     }
 
     this.interval = setInterval(() => {
-      this.sync().catch();
+      this.sync(sessionMetadata).catch();
     }, NOTIFICATIONS_CONFIG.syncInterval);
 
-    this.sync().catch();
+    this.sync(sessionMetadata).catch();
   }
 
-  async sync() {
+  async sync(sessionMetadata: SessionMetadata) {
     try {
       const remoteNotificationsDto = await this.getNotificationsFromRemote();
 
       await this.validatedNotifications(remoteNotificationsDto);
 
       const toInsert = keyBy(
-        remoteNotificationsDto.notifications.map((notification) => new NotificationEntity({
+        remoteNotificationsDto.notifications.map((notification) => plainToClass(Notification, {
           ...notification,
           type: NotificationType.Global,
           read: false,
-        })),
+        })), 'timestamp',
+      );
+
+      const currentNotifications = keyBy(
+        await this.notificationRepository.getGlobalNotifications(
+          sessionMetadata,
+        ),
         'timestamp',
       );
 
-      const currentNotifications = keyBy(await this.repository
-        .createQueryBuilder('n')
-        .where({ type: NotificationType.Global })
-        .select(['n.timestamp', 'n.read'])
-        .getMany(),
-      'timestamp');
-
-      await this.repository
-        .createQueryBuilder('n')
-        .delete()
-        .where({ type: NotificationType.Global })
-        .execute();
+      await this.notificationRepository.deleteGlobalNotifications(
+        sessionMetadata,
+      );
 
       // process
 
@@ -83,13 +85,20 @@ export class GlobalNotificationProvider {
         }
       });
 
-      await this.repository.insert(values(toInsert));
+      await this.notificationRepository.insertNotifications(
+        sessionMetadata,
+        values(toInsert),
+      );
 
-      this.eventEmitter.emit(NotificationEvents.NewNotifications, orderBy(
-        newNotifications,
-        ['timestamp'],
-        'desc',
-      ));
+      this.eventEmitter.emit(
+        NotificationEvents.NewNotifications,
+        sessionMetadata,
+        orderBy(
+          newNotifications,
+          ['timestamp'],
+          'desc',
+        ),
+      );
     } catch (e) {
       this.logger.error('Unable to sync notifications with remote', e);
     }
@@ -99,7 +108,10 @@ export class GlobalNotificationProvider {
     this.logger.debug('Validating notifications from remote');
 
     try {
-      const notificationsDto: CreateNotificationsDto = plainToClass(CreateNotificationsDto, dto);
+      const notificationsDto: CreateNotificationsDto = plainToClass(
+        CreateNotificationsDto,
+        dto,
+      );
       await this.validator.validateOrReject(notificationsDto, {
         whitelist: true,
       });
@@ -118,8 +130,13 @@ export class GlobalNotificationProvider {
       const json = JSON.parse(serializedString);
       return plainToClass(CreateNotificationsDto, json);
     } catch (e) {
-      this.logger.error(`Unable to download or parse notifications json. ${e.message}`, e);
-      throw new InternalServerErrorException('Unable to get and parse file from remote');
+      this.logger.error(
+        `Unable to download or parse notifications json. ${e.message}`,
+        e,
+      );
+      throw new InternalServerErrorException(
+        'Unable to get and parse file from remote',
+      );
     }
   }
 }

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { SettingsEntity } from 'src/modules/settings/entities/settings.entity';
 import { Settings } from 'src/modules/settings/models/settings';
 import { classToClass } from 'src/utils';
+import { SessionMetadata } from 'src/common/models';
 
 export class LocalSettingsRepository extends SettingsRepository {
   constructor(
@@ -23,7 +24,7 @@ export class LocalSettingsRepository extends SettingsRepository {
     return classToClass(Settings, entity);
   }
 
-  async update(id: string, settings: Settings): Promise<Settings> {
+  async update(_: SessionMetadata, settings: Settings): Promise<Settings> {
     await this.repository.update({}, classToClass(SettingsEntity, settings));
 
     return this.getOrCreate();

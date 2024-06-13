@@ -4,8 +4,10 @@ import { DatabaseRecommendationController }
 import { DatabaseRecommendationService } from 'src/modules/database-recommendation/database-recommendation.service';
 import { RecommendationScanner } from 'src/modules/database-recommendation/scanner/recommendations.scanner';
 import { RecommendationProvider } from 'src/modules/database-recommendation/scanner/recommendation.provider';
-import { DatabaseRecommendationRepository } from 'src/modules/database-recommendation/repositories/database-recommendation.repository';
-import { LocalDatabaseRecommendationRepository } from 'src/modules/database-recommendation/repositories/local.database.recommendation.repository';
+import { DatabaseRecommendationRepository }
+  from 'src/modules/database-recommendation/repositories/database-recommendation.repository';
+import { LocalDatabaseRecommendationRepository }
+  from 'src/modules/database-recommendation/repositories/local.database.recommendation.repository';
 import { DatabaseRecommendationGateway } from 'src/modules/database-recommendation/database-recommendation.gateway';
 import {
   DatabaseRecommendationEmitter,

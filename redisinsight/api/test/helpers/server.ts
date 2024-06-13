@@ -5,6 +5,7 @@ import { constants } from './constants';
 import { connect, Socket } from "socket.io-client";
 import * as express from 'express';
 import { serverConfig } from './test';
+import { SessionMetadataAdapter } from 'src/modules/auth/session-metadata/adapters/session-metadata.adapter';
 import * as process from 'process';
 import { sign } from 'jsonwebtoken';
 
@@ -46,6 +47,7 @@ export const getServer = async () => {
     app.use(bodyParser.json({ limit: '512mb' }));
     app.use(bodyParser.urlencoded({ limit: '512mb', extended: true }));
     app.use('/static', express.static(serverConfig.get('dir_path').staticDir))
+    app.useWebSocketAdapter(new SessionMetadataAdapter(app));
 
     await app.init();
     server = await app.getHttpServer();

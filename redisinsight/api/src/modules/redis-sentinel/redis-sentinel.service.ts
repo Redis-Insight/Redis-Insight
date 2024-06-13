@@ -29,9 +29,11 @@ export class RedisSentinelService {
    * Will not fail on connection or any other errors during adding each database
    * Returns statuses instead
    * todo: Handle unique certificate issue
+   * @param sessionMetadata
    * @param dto
    */
   public async createSentinelDatabases(
+    sessionMetadata: SessionMetadata,
     dto: CreateSentinelDatabasesDto,
   ): Promise<CreateSentinelDatabaseResponse[]> {
     this.logger.log('Adding Sentinel masters.');
@@ -68,6 +70,7 @@ export class RedisSentinelService {
         } = master;
         try {
           const model = await this.databaseService.create(
+            sessionMetadata,
             {
               ...connectionOptions,
               name: alias,

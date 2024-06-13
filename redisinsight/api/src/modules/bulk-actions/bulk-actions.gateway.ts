@@ -17,12 +17,19 @@ import { CreateBulkActionDto } from 'src/modules/bulk-actions/dto/create-bulk-ac
 import { BulkActionsService } from 'src/modules/bulk-actions/bulk-actions.service';
 import { AckWsExceptionFilter } from 'src/modules/pub-sub/filters/ack-ws-exception.filter';
 import { BulkActionIdDto } from 'src/modules/bulk-actions/dto/bulk-action-id.dto';
+import { SessionMetadata } from 'src/common/models';
+import { WSSessionMetadata } from 'src/modules/auth/session-metadata/decorators/ws-session-metadata.decorator';
 
 const SOCKETS_CONFIG = config.get('sockets');
 
 @UsePipes(new ValidationPipe({ transform: true }))
 @UseFilters(AckWsExceptionFilter)
-@WebSocketGateway({ path: SOCKETS_CONFIG.path, namespace: 'bulk-actions', cors: SOCKETS_CONFIG.cors, serveClient: SOCKETS_CONFIG.serveClient })
+@WebSocketGateway({
+  path: SOCKETS_CONFIG.path,
+  namespace: 'bulk-actions',
+  cors: SOCKETS_CONFIG.cors,
+  serveClient: SOCKETS_CONFIG.serveClient,
+})
 export class BulkActionsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() wss: Server;
 
@@ -33,19 +40,23 @@ export class BulkActionsGateway implements OnGatewayConnection, OnGatewayDisconn
   ) {}
 
   @SubscribeMessage(BulkActionsServerEvents.Create)
-  create(@ConnectedSocket() socket: Socket, @Body() dto: CreateBulkActionDto) {
+  create(
+  @WSSessionMetadata() sessionMetadata: SessionMetadata,
+    @ConnectedSocket() socket: Socket,
+    @Body() dto: CreateBulkActionDto,
+  ) {
     this.logger.log('Creating new bulk action.');
-    return this.service.create(dto, socket);
+    return this.service.create(sessionMetadata, dto, socket);
   }
 
   @SubscribeMessage(BulkActionsServerEvents.Get)
-  get(@Body() dto: BulkActionIdDto) {
+  get(@WSSessionMetadata() sessionMetadata: SessionMetadata, @Body() dto: BulkActionIdDto) {
     this.logger.log('Subscribing to bulk action.');
     return this.service.get(dto);
   }
 
   @SubscribeMessage(BulkActionsServerEvents.Abort)
-  abort(@Body() dto: BulkActionIdDto) {
+  abort(@WSSessionMetadata() sessionMetadata: SessionMetadata, @Body() dto: BulkActionIdDto) {
     this.logger.log('Aborting bulk action.');
     return this.service.abort(dto);
   }

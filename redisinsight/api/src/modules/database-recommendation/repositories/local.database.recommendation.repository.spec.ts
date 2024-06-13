@@ -1,5 +1,5 @@
 import { when } from 'jest-when';
-import { InternalServerErrorException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -80,7 +80,7 @@ describe('LocalDatabaseRecommendationRepository', () => {
 
   describe('create', () => {
     it('should create recommendation', async () => {
-      const result = await service.create(mockDatabaseRecommendation);
+      const result = await service.create(mockClientMetadata.sessionMetadata, mockDatabaseRecommendation);
 
       expect(result).toEqual(mockDatabaseRecommendation);
     });
@@ -88,7 +88,7 @@ describe('LocalDatabaseRecommendationRepository', () => {
     it('should not create recommendation', async () => {
       repository.save.mockRejectedValueOnce(new Error());
 
-      const result = await service.create(mockDatabaseRecommendation);
+      const result = await service.create(mockClientMetadata.sessionMetadata, mockDatabaseRecommendation);
 
       expect(result).toEqual(null);
     });
@@ -101,14 +101,14 @@ describe('LocalDatabaseRecommendationRepository', () => {
       expect(await service.delete(mockClientMetadata, 'id')).toEqual(undefined);
     });
 
-    it('should return InternalServerErrorException when recommendation does not found', async () => {
+    it('should return NotFoundException when recommendation does not found', async () => {
       repository.delete.mockResolvedValueOnce({ affected: 0 });
 
       try {
         await service.delete(mockClientMetadata, 'id');
         fail();
       } catch (e) {
-        expect(e).toBeInstanceOf(InternalServerErrorException);
+        expect(e).toBeInstanceOf(NotFoundException);
         expect(e.message).toEqual(ERROR_MESSAGES.DATABASE_RECOMMENDATION_NOT_FOUND);
       }
     });

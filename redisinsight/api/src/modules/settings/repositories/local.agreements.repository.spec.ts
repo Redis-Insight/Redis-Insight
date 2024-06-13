@@ -5,7 +5,9 @@ import {
   mockAgreements,
   mockAgreementsEntity,
   mockRepository,
-  MockType, mockUserId,
+  mockSessionMetadata,
+  MockType,
+  mockUserId,
 } from 'src/__mocks__';
 import { AgreementsEntity } from 'src/modules/settings/entities/agreements.entity';
 import { LocalAgreementsRepository } from 'src/modules/settings/repositories/local.agreements.repository';
@@ -57,10 +59,10 @@ describe('LocalAgreementsRepository', () => {
 
   describe('update', () => {
     it('should update agreements', async () => {
-      const result = await service.update(mockUserId, mockAgreements);
+      const result = await service.update(mockSessionMetadata, mockAgreements);
 
       expect(result).toEqual(mockAgreements);
-      expect(repository.update).toHaveBeenCalledWith("1", {
+      expect(repository.update).toHaveBeenCalledWith({}, {
         ...mockAgreementsEntity,
       });
     });

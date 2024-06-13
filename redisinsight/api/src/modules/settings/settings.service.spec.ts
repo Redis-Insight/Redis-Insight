@@ -3,7 +3,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import {
   mockAgreements,
   mockAgreementsRepository, mockAppSettings,
-  mockEncryptionStrategyInstance, mockKeyEncryptionStrategyInstance, mockSettings,
+  mockEncryptionStrategyInstance, mockKeyEncryptionStrategyInstance, mockSessionMetadata, mockSettings,
   mockSettingsAnalyticsService, mockSettingsRepository,
   MockType, mockUserId,
 } from 'src/__mocks__';
@@ -89,7 +89,7 @@ describe('SettingsService', () => {
       agreementsRepository.getOrCreate.mockResolvedValue(new Agreements());
       settingsRepository.getOrCreate.mockResolvedValue(new Settings());
 
-      const result = await service.getAppSettings(mockUserId);
+      const result = await service.getAppSettings(mockSessionMetadata);
 
       expect(result).toEqual({
         theme: null,
@@ -104,7 +104,7 @@ describe('SettingsService', () => {
       agreementsRepository.getOrCreate.mockResolvedValue(mockAgreements);
       settingsRepository.getOrCreate.mockResolvedValue(mockSettings);
 
-      const result = await service.getAppSettings(mockUserId);
+      const result = await service.getAppSettings(mockSessionMetadata);
 
       expect(result).toEqual({
         ...mockSettings.data,
@@ -118,7 +118,7 @@ describe('SettingsService', () => {
       agreementsRepository.getOrCreate.mockRejectedValue(new Error('some error'));
 
       try {
-        await service.getAppSettings(mockUserId);
+        await service.getAppSettings(mockSessionMetadata);
         fail();
       } catch (err) {
         expect(err).toBeInstanceOf(InternalServerErrorException);
@@ -138,9 +138,9 @@ describe('SettingsService', () => {
         scanThreshold: 1001,
       };
 
-      const response = await service.updateAppSettings(mockUserId, dto);
+      const response = await service.updateAppSettings(mockSessionMetadata, dto);
       expect(agreementsRepository.update).not.toHaveBeenCalled();
-      expect(settingsRepository.update).toHaveBeenCalledWith(mockUserId, {
+      expect(settingsRepository.update).toHaveBeenCalledWith(mockSessionMetadata, {
         ...mockSettings,
         data: {
           ...mockSettings.data,
@@ -157,9 +157,9 @@ describe('SettingsService', () => {
         })),
       };
 
-      const response = await service.updateAppSettings(mockUserId, dto);
+      const response = await service.updateAppSettings(mockSessionMetadata, dto);
       expect(settingsRepository.update).not.toHaveBeenCalled();
-      expect(agreementsRepository.update).toHaveBeenCalledWith(mockUserId, {
+      expect(agreementsRepository.update).toHaveBeenCalledWith(mockSessionMetadata, {
         ...mockAgreements,
         version: AGREEMENTS_SPEC.version,
         data: {
@@ -192,15 +192,15 @@ describe('SettingsService', () => {
         })),
       };
 
-      const response = await service.updateAppSettings(mockUserId, dto);
-      expect(settingsRepository.update).toHaveBeenCalledWith(mockUserId, {
+      const response = await service.updateAppSettings(mockSessionMetadata, dto);
+      expect(settingsRepository.update).toHaveBeenCalledWith(mockSessionMetadata, {
         ...mockSettings,
         data: {
           batchSize: 6,
         },
 
       });
-      expect(agreementsRepository.update).toHaveBeenCalledWith(mockUserId, {
+      expect(agreementsRepository.update).toHaveBeenCalledWith(mockSessionMetadata, {
         ...mockAgreements,
         version: AGREEMENTS_SPEC.version,
         data: {
@@ -224,7 +224,7 @@ describe('SettingsService', () => {
       });
 
       try {
-        await service.updateAppSettings(mockUserId, { agreements: new Map([]) });
+        await service.updateAppSettings(mockSessionMetadata, { agreements: new Map([]) });
         fail();
       } catch (err) {
         expect(err).toBeInstanceOf(AgreementIsNotDefinedException);
@@ -238,7 +238,7 @@ describe('SettingsService', () => {
       };
 
       try {
-        await service.updateAppSettings(mockUserId, dto);
+        await service.updateAppSettings(mockSessionMetadata, dto);
         fail();
       } catch (err) {
         expect(err).toBeInstanceOf(InternalServerErrorException);

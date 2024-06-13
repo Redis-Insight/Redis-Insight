@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   mockBulkActionsAnalytics,
   mockDatabaseClientFactory,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { BulkActionsProvider } from 'src/modules/bulk-actions/providers/bulk-actions.provider';
 import { RedisDataType } from 'src/modules/browser/keys/dto';
@@ -60,13 +61,13 @@ describe('BulkActionsProvider', () => {
     it('should create only once with the same id', async () => {
       expect(service['bulkActions'].size).toEqual(0);
 
-      const bulkAction = await service.create(mockCreateBulkActionDto, mockSocket1);
+      const bulkAction = await service.create(mockSessionMetadata, mockCreateBulkActionDto, mockSocket1);
 
       expect(bulkAction).toBeInstanceOf(BulkAction);
       expect(service['bulkActions'].size).toEqual(1);
 
       try {
-        await service.create(mockCreateBulkActionDto, mockSocket1);
+        await service.create(mockSessionMetadata, mockCreateBulkActionDto, mockSocket1);
         fail();
       } catch (e) {
         expect(e.message).toEqual('You already have bulk action with such id');
@@ -74,13 +75,13 @@ describe('BulkActionsProvider', () => {
 
       expect(service['bulkActions'].size).toEqual(1);
 
-      await service.create({ ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
+      await service.create(mockSessionMetadata, { ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
 
       expect(service['bulkActions'].size).toEqual(2);
     });
     it('should fail when unsupported runner class', async () => {
       try {
-        await service.create({
+        await service.create(mockSessionMetadata, {
           ...mockCreateBulkActionDto,
           type: undefined,
         }, mockSocket1);
@@ -92,8 +93,8 @@ describe('BulkActionsProvider', () => {
   });
   describe('get', () => {
     it('should get by id', async () => {
-      const bulkAction = await service.create(mockCreateBulkActionDto, mockSocket1);
-      await service.create({ ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
+      const bulkAction = await service.create(mockSessionMetadata, mockCreateBulkActionDto, mockSocket1);
+      await service.create(mockSessionMetadata, { ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
 
       expect(service['bulkActions'].size).toEqual(2);
 
@@ -113,8 +114,8 @@ describe('BulkActionsProvider', () => {
   });
   describe('abort', () => {
     it('should abort by id and remove', async () => {
-      const bulkAction = await service.create(mockCreateBulkActionDto, mockSocket1);
-      await service.create({ ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
+      const bulkAction = await service.create(mockSessionMetadata, mockCreateBulkActionDto, mockSocket1);
+      await service.create(mockSessionMetadata, { ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
 
       expect(service['bulkActions'].size).toEqual(2);
 
@@ -136,9 +137,9 @@ describe('BulkActionsProvider', () => {
   });
   describe('abortUsersBulkActions', () => {
     it('should abort all users bulk actions', async () => {
-      await service.create(mockCreateBulkActionDto, mockSocket1);
-      await service.create({ ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
-      await service.create({ ...mockCreateBulkActionDto, id: 'new one 2' }, mockSocket2);
+      await service.create(mockSessionMetadata, mockCreateBulkActionDto, mockSocket1);
+      await service.create(mockSessionMetadata, { ...mockCreateBulkActionDto, id: 'new one' }, mockSocket1);
+      await service.create(mockSessionMetadata, { ...mockCreateBulkActionDto, id: 'new one 2' }, mockSocket2);
 
       expect(service['bulkActions'].size).toEqual(3);
 

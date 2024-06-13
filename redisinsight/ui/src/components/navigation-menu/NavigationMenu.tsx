@@ -15,7 +15,7 @@ import {
 import HighlightedFeature, { Props as HighlightedFeatureProps } from 'uiSrc/components/hightlighted-feature/HighlightedFeature'
 import { ANALYTICS_ROUTES, TRIGGERED_FUNCTIONS_ROUTES } from 'uiSrc/components/main-router/constants/sub-routes'
 
-import { PageNames, Pages } from 'uiSrc/constants'
+import { FeatureFlags, PageNames, Pages } from 'uiSrc/constants'
 import { EXTERNAL_LINKS } from 'uiSrc/constants/links'
 import { getRouterLinkProps } from 'uiSrc/services'
 import { appFeaturePagesHighlightingSelector, removeFeatureFromHighlighting } from 'uiSrc/slices/app/features'
@@ -42,6 +42,7 @@ import { BuildType } from 'uiSrc/constants/env'
 import { renderOnboardingTourWithChild } from 'uiSrc/utils/onboarding'
 import { ONBOARDING_FEATURES } from 'uiSrc/components/onboarding-features'
 import { BUILD_FEATURES } from 'uiSrc/constants/featuresHighlighting'
+import { FeatureFlagComponent } from 'uiSrc/components'
 
 import HelpMenu from './components/help-menu/HelpMenu'
 import NotificationMenu from './components/notifications-center'
@@ -64,6 +65,7 @@ interface INavigations {
   getClassName: () => string
   getIconType: () => string
   onboard?: any
+  featureFlag?: FeatureFlags
 }
 
 const NavigationMenu = () => {
@@ -144,6 +146,7 @@ const NavigationMenu = () => {
       dataTestId: 'analytics-page-btn',
       connectedInstanceId,
       isActivePage: isAnalyticsPath(activePage),
+      featureFlag: FeatureFlags.dbAnalysis,
       getClassName() {
         return cx(styles.navigationButton, { [styles.active]: this.isActivePage })
       },
@@ -176,6 +179,7 @@ const NavigationMenu = () => {
       connectedInstanceId,
       isActivePage: isTriggeredFunctionsPath(activePage),
       isBeta: true,
+      featureFlag: FeatureFlags.triggersAndFunctions,
       getClassName() {
         return cx(styles.navigationButton, { [styles.active]: this.isActivePage })
       },
@@ -194,6 +198,7 @@ const NavigationMenu = () => {
       onClick: () => handleGoPage(Pages.settings),
       dataTestId: 'settings-page-btn',
       isActivePage: activePage === Pages.settings,
+      featureFlag: FeatureFlags.appSettings,
       getClassName() {
         return cx(styles.navigationButton, { [styles.active]: this.isActivePage })
       },
@@ -202,6 +207,55 @@ const NavigationMenu = () => {
       },
     },
   ]
+
+  const renderPrivateRouteButton = (nav: INavigations) => (
+    <React.Fragment key={nav.tooltipText}>
+      {renderOnboardingTourWithChild(
+        <HighlightedFeature
+          {...getAdditionPropsForHighlighting(nav.pageName)}
+          key={nav.tooltipText}
+          isHighlight={!!highlightedPages[nav.pageName]?.length}
+          dotClassName={cx(styles.highlightDot, { [styles.activePage]: nav.isActivePage })}
+          tooltipPosition="right"
+          transformOnHover
+        >
+          <EuiToolTip content={nav.tooltipText} position="right">
+            <div className={styles.navigationButtonWrapper}>
+              <EuiButtonIcon
+                className={nav.getClassName()}
+                iconType={nav.getIconType()}
+                aria-label={nav.ariaLabel}
+                onClick={nav.onClick}
+                data-testid={nav.dataTestId}
+              />
+              {nav.isBeta && <EuiBadge className={styles.betaLabel}>BETA</EuiBadge>}
+            </div>
+          </EuiToolTip>
+        </HighlightedFeature>,
+        { options: nav.onboard },
+        nav.isActivePage
+      )}
+    </React.Fragment>
+  )
+
+  const renderPublicRouteButton = (nav: INavigations) => (
+    <HighlightedFeature
+      key={nav.tooltipText}
+      isHighlight={!!highlightedPages[nav.pageName]?.length}
+      dotClassName={cx(styles.highlightDot, { [styles.activePage]: nav.isActivePage })}
+      transformOnHover
+    >
+      <EuiToolTip content={nav.tooltipText} position="right">
+        <EuiButtonIcon
+          className={nav.getClassName()}
+          iconType={nav.getIconType()}
+          aria-label={nav.ariaLabel}
+          onClick={nav.onClick}
+          data-testid={nav.dataTestId}
+        />
+      </EuiToolTip>
+    </HighlightedFeature>
+  )
 
   return (
     <EuiPageSideBar aria-label="Main navigation" className={cx(styles.navigation, 'eui-yScroll')}>
@@ -219,58 +273,25 @@ const NavigationMenu = () => {
 
         {connectedInstanceId && (
           privateRoutes.map((nav) => (
-            <React.Fragment key={nav.tooltipText}>
-              {renderOnboardingTourWithChild(
-                (
-                  <HighlightedFeature
-                    {...getAdditionPropsForHighlighting(nav.pageName)}
-                    key={nav.tooltipText}
-                    isHighlight={!!highlightedPages[nav.pageName]?.length}
-                    dotClassName={cx(styles.highlightDot, { [styles.activePage]: nav.isActivePage })}
-                    tooltipPosition="right"
-                    transformOnHover
-                  >
-                    <EuiToolTip content={nav.tooltipText} position="right">
-                      <div className={styles.navigationButtonWrapper}>
-                        <EuiButtonIcon
-                          className={nav.getClassName()}
-                          iconType={nav.getIconType()}
-                          aria-label={nav.ariaLabel}
-                          onClick={nav.onClick}
-                          data-testid={nav.dataTestId}
-                        />
-                        {nav.isBeta && (<EuiBadge className={styles.betaLabel}>BETA</EuiBadge>)}
-                      </div>
-                    </EuiToolTip>
-                  </HighlightedFeature>
-                ),
-                { options: nav.onboard },
-                nav.isActivePage
-              )}
-            </React.Fragment>
+            nav.featureFlag ? (
+              <FeatureFlagComponent name={nav.featureFlag} key={nav.tooltipText}>
+                {renderPrivateRouteButton(nav)}
+              </FeatureFlagComponent>
+            ) : renderPrivateRouteButton(nav)
           ))
         )}
       </div>
       <div className={styles.bottomContainer}>
-        <NotificationMenu />
+        <FeatureFlagComponent name={FeatureFlags.appNotifications}>
+          <NotificationMenu />
+        </FeatureFlagComponent>
         <HelpMenu />
         {publicRoutes.map((nav) => (
-          <HighlightedFeature
-            key={nav.tooltipText}
-            isHighlight={!!highlightedPages[nav.pageName]?.length}
-            dotClassName={cx(styles.highlightDot, { [styles.activePage]: nav.isActivePage })}
-            transformOnHover
-          >
-            <EuiToolTip content={nav.tooltipText} position="right">
-              <EuiButtonIcon
-                className={nav.getClassName()}
-                iconType={nav.getIconType()}
-                aria-label={nav.ariaLabel}
-                onClick={nav.onClick}
-                data-testid={nav.dataTestId}
-              />
-            </EuiToolTip>
-          </HighlightedFeature>
+          nav.featureFlag ? (
+            <FeatureFlagComponent name={nav.featureFlag} key={nav.tooltipText}>
+              {renderPublicRouteButton(nav)}
+            </FeatureFlagComponent>
+          ) : renderPublicRouteButton(nav)
         ))}
         <Divider colorVariable="separatorNavigationColor" className="eui-hideFor--xs eui-hideFor--s" variant="middle" />
         <Divider

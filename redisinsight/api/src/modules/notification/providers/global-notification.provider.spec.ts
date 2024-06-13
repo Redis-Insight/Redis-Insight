@@ -1,73 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
-  mockRepository,
+  mockNotification1,
+  mockNotification1UPD,
+  mockNotification2,
+  mockNotificationRepository,
+  mockSessionMetadata,
   MockType,
 } from 'src/__mocks__';
 import { GlobalNotificationProvider } from 'src/modules/notification/providers/global-notification.provider';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
-import { Repository } from 'typeorm';
-import { NotificationType } from 'src/modules/notification/constants';
 import axios from 'axios';
 import { CreateNotificationDto, CreateNotificationsDto } from 'src/modules/notification/dto';
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
+import { NotificationRepository } from '../repositories/notification.repository';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const mockNotification1 = {
-  title: 'Title-1',
-  body: 'Body-1',
-  timestamp: 100,
-};
-
-const mockNotification1UPD = {
-  title: 'UPD Title-1',
-  body: 'Body-1',
-  timestamp: 100,
-};
-
-const mockNotification2 = {
-  title: 'Title-2',
-  body: 'Body-2',
-  timestamp: 200,
-};
-
-const mockNotification3 = {
-  title: 'Title-3',
-  body: 'Body-3',
-  timestamp: 300,
-};
-
-const mockNotificationEntity1 = new NotificationEntity({
-  ...mockNotification1,
-  type: NotificationType.Global,
-  read: true,
-});
-
-const mockNotificationEntity1UPD = new NotificationEntity({
-  ...mockNotification1UPD,
-  type: NotificationType.Global,
-  read: true,
-});
-
-const mockNotificationEntity2 = new NotificationEntity({
-  ...mockNotification2,
-  type: NotificationType.Global,
-  read: false,
-});
-
-const mockNotificationEntity3 = new NotificationEntity({
-  ...mockNotification3,
-  type: NotificationType.Global,
-  read: false,
-});
-
 describe('GlobalNotificationProvider', () => {
   let service: GlobalNotificationProvider;
-  let repository: MockType<Repository<NotificationEntity>>;
-  let getNotificationsFromRemoteSpy;
+  let repository: MockType<NotificationRepository>;
+  let getNotificationsFromRemoteSpy: any;
 
   beforeEach(async () => {
     jest.mock('axios', () => mockedAxios);
@@ -77,31 +30,29 @@ describe('GlobalNotificationProvider', () => {
         GlobalNotificationProvider,
         EventEmitter2,
         {
-          provide: getRepositoryToken(NotificationEntity),
-          useFactory: mockRepository,
+          provide: NotificationRepository,
+          useFactory: mockNotificationRepository,
         },
       ],
     }).compile();
 
     service = await module.get(GlobalNotificationProvider);
-    repository = await module.get(
-      getRepositoryToken(NotificationEntity),
-    );
+    repository = await module.get(NotificationRepository);
 
     getNotificationsFromRemoteSpy = jest.spyOn(service, 'getNotificationsFromRemote');
   });
 
   afterEach(() => {
-    clearInterval(service ? service['interval'] : '');
+    clearInterval(service ? service['interval'] : undefined);
   });
   describe('init', () => {
     it('should should init and set interval only once', async () => {
       const syncSpy = jest.spyOn(service, 'sync');
 
       expect(service['interval']).toEqual(undefined);
-      await service.init();
+      service.init(mockSessionMetadata);
       expect(service['interval']).not.toEqual(undefined);
-      await service.init();
+      service.init(mockSessionMetadata);
       expect(syncSpy).toHaveBeenCalledTimes(1);
     });
   });
@@ -115,16 +66,18 @@ describe('GlobalNotificationProvider', () => {
         ],
       });
 
-      repository.createQueryBuilder().getMany.mockResolvedValueOnce([
-        mockNotificationEntity1,
-        mockNotificationEntity3,
+      repository.getGlobalNotifications.mockResolvedValueOnce([
+        mockNotification1,
       ]);
 
-      await service.sync();
+      await service.sync(mockSessionMetadata);
 
-      expect(repository.insert).toHaveBeenCalledWith([
-        mockNotificationEntity1UPD,
-        mockNotificationEntity2,
+      expect(repository.deleteGlobalNotifications).toHaveBeenCalledTimes(1);
+      expect(repository.deleteGlobalNotifications).toHaveBeenCalledWith(mockSessionMetadata);
+
+      expect(repository.insertNotifications).toHaveBeenCalledWith(mockSessionMetadata, [
+        mockNotification2,
+        mockNotification1UPD,
       ]);
     });
   });

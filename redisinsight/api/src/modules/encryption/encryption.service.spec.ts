@@ -9,6 +9,7 @@ import {
   mockKeyEncryptResult,
   mockSettingsService,
   MockType,
+  mockConstantsProvider,
 } from 'src/__mocks__';
 import { EncryptionService } from 'src/modules/encryption/encryption.service';
 import { PlainEncryptionStrategy } from 'src/modules/encryption/strategies/plain-encryption.strategy';
@@ -17,6 +18,7 @@ import { EncryptionStrategy } from 'src/modules/encryption/models';
 import { UnsupportedEncryptionStrategyException } from 'src/modules/encryption/exceptions';
 import { SettingsService } from 'src/modules/settings/settings.service';
 import { KeyEncryptionStrategy } from 'src/modules/encryption/strategies/key-encryption.strategy';
+import { ConstantsProvider } from 'src/modules/constants/providers/constants.provider';
 
 describe('EncryptionService', () => {
   let service: EncryptionService;
@@ -46,6 +48,10 @@ describe('EncryptionService', () => {
         {
           provide: SettingsService,
           useFactory: mockSettingsService,
+        },
+        {
+          provide: ConstantsProvider,
+          useFactory: mockConstantsProvider,
         },
       ],
     }).compile();

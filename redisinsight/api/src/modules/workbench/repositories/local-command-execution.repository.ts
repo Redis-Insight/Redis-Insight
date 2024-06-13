@@ -13,6 +13,7 @@ import { ShortCommandExecution } from 'src/modules/workbench/models/short-comman
 import { CommandExecutionStatus } from 'src/modules/cli/dto/cli.dto';
 import { CommandExecutionRepository } from 'src/modules/workbench/repositories/command-execution.repository';
 import config from 'src/utils/config';
+import { SessionMetadata } from 'src/common/models';
 
 const WORKBENCH_CONFIG = config.get('workbench');
 
@@ -34,9 +35,10 @@ export class LocalCommandExecutionRepository extends CommandExecutionRepository 
   /**
    * Encrypt command executions and save entire entities
    * Should always throw and error in case when unable to encrypt for some reason
+   * @param _
    * @param commandExecutions
    */
-  async createMany(commandExecutions: Partial<CommandExecution>[]): Promise<CommandExecution[]> {
+  async createMany(_: SessionMetadata, commandExecutions: Partial<CommandExecution>[]): Promise<CommandExecution[]> {
     // todo: limit by 30 max to insert
     let entities = await Promise.all(commandExecutions.map(async (commandExecution) => {
       const entity = plainToClass(CommandExecutionEntity, commandExecution);
@@ -83,10 +85,11 @@ export class LocalCommandExecutionRepository extends CommandExecutionRepository 
   }
 
   /**
-   * Fetch only needed fiels to show in list to avoid huge decryption work
+   * Fetch only needed fields to show in list to avoid huge decryption work
+   * @param _
    * @param databaseId
    */
-  async getList(databaseId: string): Promise<ShortCommandExecution[]> {
+  async getList(_: SessionMetadata, databaseId: string): Promise<ShortCommandExecution[]> {
     this.logger.log('Getting command executions');
     const entities = await this.commandExecutionRepository
       .createQueryBuilder('e')
@@ -126,10 +129,11 @@ export class LocalCommandExecutionRepository extends CommandExecutionRepository 
   /**
    * Get single command execution entity, decrypt and convert to model
    *
+   * @param _
    * @param databaseId
    * @param id
    */
-  async getOne(databaseId: string, id: string): Promise<CommandExecution> {
+  async getOne(_: SessionMetadata, databaseId: string, id: string): Promise<CommandExecution> {
     this.logger.log('Getting command executions');
 
     const entity = await this.commandExecutionRepository.findOneBy({ id, databaseId });
@@ -149,10 +153,11 @@ export class LocalCommandExecutionRepository extends CommandExecutionRepository 
   /**
    * Delete single item
    *
+   * @param _
    * @param databaseId
    * @param id
    */
-  async delete(databaseId: string, id: string): Promise<void> {
+  async delete(_: SessionMetadata, databaseId: string, id: string): Promise<void> {
     this.logger.log('Delete command execution');
 
     await this.commandExecutionRepository.delete({ id, databaseId });
@@ -163,9 +168,10 @@ export class LocalCommandExecutionRepository extends CommandExecutionRepository 
   /**
    * Delete all items
    *
+   * @param _
    * @param databaseId
    */
-  async deleteAll(databaseId: string): Promise<void> {
+  async deleteAll(_: SessionMetadata, databaseId: string): Promise<void> {
     this.logger.log('Delete all command executions');
 
     await this.commandExecutionRepository.delete({ databaseId });

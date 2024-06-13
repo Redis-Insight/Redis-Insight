@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   MockType,
   mockBulkActionsAnalytics,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { BulkActionsProvider } from 'src/modules/bulk-actions/providers/bulk-actions.provider';
 import { RedisDataType } from 'src/modules/browser/keys/dto';
@@ -76,7 +77,7 @@ describe('BulkActionsService', () => {
 
   describe('create', () => {
     it('should create and return overview', async () => {
-      expect(await service.create(mockCreateBulkActionDto, mockSocket1)).toEqual(mockOverview);
+      expect(await service.create(mockSessionMetadata, mockCreateBulkActionDto, mockSocket1)).toEqual(mockOverview);
       expect(bulkActionProvider.create).toHaveBeenCalledTimes(1);
       expect(analyticsService.sendActionStarted).toHaveBeenCalledTimes(1);
     });

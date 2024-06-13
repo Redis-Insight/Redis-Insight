@@ -33,6 +33,7 @@ describe('AutoUpdatedStaticsProvider', () => {
       buildInfo: TUTORIALS.buildInfo,
       zip: TUTORIALS.zip,
       devMode: TUTORIALS.devMode,
+      shouldAutoUpdate: true,
     });
   });
 

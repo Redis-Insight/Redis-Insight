@@ -47,7 +47,7 @@ export class DatabaseConnectionService {
       }));
     }
 
-    await this.repository.update(clientMetadata.databaseId, toUpdate);
+    await this.repository.update(clientMetadata.sessionMetadata, clientMetadata.databaseId, toUpdate);
 
     const generalInfo = await this.databaseInfoProvider.getRedisGeneralInfo(client);
 

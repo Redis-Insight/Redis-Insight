@@ -104,6 +104,7 @@ export default {
   redis_scan: {
     countDefault: parseInt(process.env.RI_SCAN_COUNT_DEFAULT, 10) || 200,
     countThreshold: parseInt(process.env.RI_SCAN_COUNT_THRESHOLD, 10) || 10000,
+    countThresholdMax: parseInt(process.env.RI_SCAN_COUNT_THRESHOLD_MAX, 10) || Number.MAX_VALUE,
   },
   modules: {
     json: {
@@ -215,7 +216,8 @@ export default {
     timeout: parseInt(process.env.RI_CONNECTIONS_TIMEOUT_DEFAULT, 10) || 30 * 1_000, // 30 sec
   },
   redisStack: {
-    id: process.env.RI_BUILD_TYPE === 'REDIS_STACK' ? process.env.RI_REDIS_STACK_DATABASE_ID || 'redis-stack' : undefined,
+    id: process.env.RI_BUILD_TYPE === 'REDIS_STACK'
+      ? process.env.RI_REDIS_STACK_DATABASE_ID || 'redis-stack' : undefined,
     name: process.env.RI_REDIS_STACK_DATABASE_NAME,
     host: process.env.RI_REDIS_STACK_DATABASE_HOST,
     port: process.env.RI_REDIS_STACK_DATABASE_PORT,

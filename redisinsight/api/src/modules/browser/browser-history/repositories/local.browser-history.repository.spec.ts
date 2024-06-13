@@ -14,24 +14,25 @@ import {
   mockBrowserHistory,
   mockBrowserHistoryEntity,
   mockBrowserHistoryPartial,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { EncryptionService } from 'src/modules/encryption/encryption.service';
-import { BrowserHistoryProvider } from 'src/modules/browser/browser-history/providers/browser-history.provider';
 import { BrowserHistoryEntity } from 'src/modules/browser/browser-history/entities/browser-history.entity';
 import ERROR_MESSAGES from 'src/constants/error-messages';
 import { KeytarDecryptionErrorException } from 'src/modules/encryption/exceptions';
 import { BrowserHistory } from 'src/modules/browser/browser-history/dto';
 import { BrowserHistoryMode } from 'src/common/constants';
+import { LocalBrowserHistoryRepository } from './local.browser-history.repository';
 
-describe('BrowserHistoryProvider', () => {
-  let service: BrowserHistoryProvider;
+describe('LocalBrowserHistoryRepository', () => {
+  let browserHistoryRepository: LocalBrowserHistoryRepository;
   let repository: MockType<Repository<BrowserHistory>>;
   let encryptionService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        BrowserHistoryProvider,
+        LocalBrowserHistoryRepository,
         {
           provide: getRepositoryToken(BrowserHistoryEntity),
           useFactory: mockRepository,
@@ -43,7 +44,7 @@ describe('BrowserHistoryProvider', () => {
       ],
     }).compile();
 
-    service = module.get<BrowserHistoryProvider>(BrowserHistoryProvider);
+    browserHistoryRepository = module.get<LocalBrowserHistoryRepository>(LocalBrowserHistoryRepository);
     repository = module.get(getRepositoryToken(BrowserHistoryEntity));
     encryptionService = module.get<EncryptionService>(EncryptionService);
 
@@ -64,7 +65,10 @@ describe('BrowserHistoryProvider', () => {
   describe('create', () => {
     it('should process new entity', async () => {
       repository.save.mockReturnValueOnce(mockBrowserHistoryEntity);
-      expect(await service.create(mockBrowserHistoryPartial)).toEqual(mockBrowserHistory);
+      expect(await browserHistoryRepository.create(
+        mockSessionMetadata,
+        mockBrowserHistoryPartial,
+      )).toEqual(mockBrowserHistory);
     });
   });
 
@@ -72,7 +76,10 @@ describe('BrowserHistoryProvider', () => {
     it('should get browser history item', async () => {
       repository.findOneBy.mockReturnValueOnce(mockBrowserHistoryEntity);
 
-      expect(await service.get(mockBrowserHistory.id)).toEqual(mockBrowserHistory);
+      expect(await browserHistoryRepository.get(
+        mockSessionMetadata,
+        mockBrowserHistory.id,
+      )).toEqual(mockBrowserHistory);
     });
     it('should return null fields in case of decryption errors', async () => {
       when(encryptionService.decrypt)
@@ -80,7 +87,7 @@ describe('BrowserHistoryProvider', () => {
         .mockRejectedValueOnce(new KeytarDecryptionErrorException());
       repository.findOneBy.mockReturnValueOnce(mockBrowserHistoryEntity);
 
-      expect(await service.get(mockBrowserHistory.id)).toEqual({
+      expect(await browserHistoryRepository.get(mockSessionMetadata, mockBrowserHistory.id)).toEqual({
         ...mockBrowserHistory,
         filter: null,
       });
@@ -89,7 +96,7 @@ describe('BrowserHistoryProvider', () => {
       repository.findOneBy.mockReturnValueOnce(null);
 
       try {
-        await service.get(mockBrowserHistory.id);
+        await browserHistoryRepository.get(mockSessionMetadata, mockBrowserHistory.id);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -100,15 +107,19 @@ describe('BrowserHistoryProvider', () => {
 
   describe('list', () => {
     it('should get list of browser history', async () => {
-      mockQueryBuilderGetMany.mockReturnValueOnce([{
-        id: mockBrowserHistory.id,
-        createdAt: mockBrowserHistory.createdAt,
-        notExposed: 'field',
-      }]);
-      expect(await service.list(mockBrowserHistory.databaseId, BrowserHistoryMode.Pattern)).toEqual([{
-        id: mockBrowserHistory.id,
-        createdAt: mockBrowserHistory.createdAt,
-        mode: mockBrowserHistory.mode,
+      mockQueryBuilderGetMany.mockReturnValueOnce([mockBrowserHistoryEntity]);
+      expect(await browserHistoryRepository.list(
+        mockSessionMetadata,
+        mockBrowserHistory.databaseId,
+        BrowserHistoryMode.Pattern,
+      )).toMatchObject([{
+        id: mockBrowserHistoryEntity.id,
+        createdAt: mockBrowserHistoryEntity.createdAt,
+        mode: mockBrowserHistoryEntity.mode,
+        filter: {
+          type: mockBrowserHistory.filter.type,
+          match: mockBrowserHistory.filter.match,
+        },
       }]);
     });
   });
@@ -116,11 +127,19 @@ describe('BrowserHistoryProvider', () => {
   describe('delete', () => {
     it('Should not return anything on cleanup', async () => {
       repository.delete.mockReturnValueOnce(mockBrowserHistoryEntity);
-      expect(await service.delete(mockBrowserHistory.databaseId, mockBrowserHistory.id)).toEqual(undefined);
+      expect(await browserHistoryRepository.delete(
+        mockSessionMetadata,
+        mockBrowserHistory.databaseId,
+        mockBrowserHistory.id,
+      )).toEqual(undefined);
     });
     it('Should throw InternalServerErrorException when error during delete', async () => {
       repository.delete.mockRejectedValueOnce(new Error());
-      await expect(service.delete(mockBrowserHistory.databaseId, mockBrowserHistory.id)).rejects.toThrowError(InternalServerErrorException);
+      await expect(browserHistoryRepository.delete(
+        mockSessionMetadata,
+        mockBrowserHistory.databaseId,
+        mockBrowserHistory.id,
+      )).rejects.toThrowError(InternalServerErrorException);
     });
   });
 
@@ -131,7 +150,11 @@ describe('BrowserHistoryProvider', () => {
         { id: mockBrowserHistoryEntity.id },
       ]);
 
-      expect(await service.cleanupDatabaseHistory(mockDatabase.id, BrowserHistoryMode.Pattern)).toEqual(undefined);
+      expect(await browserHistoryRepository.cleanupDatabaseHistory(
+        mockSessionMetadata,
+        mockDatabase.id,
+        BrowserHistoryMode.Pattern,
+      )).toEqual(undefined);
     });
   });
 });

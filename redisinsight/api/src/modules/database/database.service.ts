@@ -92,21 +92,23 @@ export class DatabaseService {
 
   /**
    * Simply checks if database exists
+   * @param sessionMetadata
    * @param id
    */
-  async exists(id: string): Promise<boolean> {
+  async exists(sessionMetadata: SessionMetadata, id: string): Promise<boolean> {
     this.logger.log(`Checking if database with ${id} exists.`);
-    return this.repository.exists(id);
+    return this.repository.exists(sessionMetadata, id);
   }
 
   /**
    * Get list of databases
    * TBD add pagination, filters, sorting, search, etc.
+   * @param sessionMetadata
    */
-  async list(): Promise<Database[]> {
+  async list(sessionMetadata: SessionMetadata): Promise<Database[]> {
     try {
       this.logger.log('Getting databases list');
-      return await this.repository.list();
+      return await this.repository.list(sessionMetadata);
     } catch (e) {
       this.logger.error('Failed to get database instance list.', e);
       throw new InternalServerErrorException();
@@ -115,10 +117,16 @@ export class DatabaseService {
 
   /**
    * Gets full database model by id
+   * @param sessionMetadata
    * @param id
    * @param ignoreEncryptionErrors
    */
-  async get(id: string, ignoreEncryptionErrors = false, omitFields?: string[]): Promise<Database> {
+  async get(
+    sessionMetadata: SessionMetadata,
+    id: string,
+    ignoreEncryptionErrors = false,
+    omitFields?: string[],
+  ): Promise<Database> {
     this.logger.log(`Getting database ${id}`);
 
     if (!id) {
@@ -126,7 +134,7 @@ export class DatabaseService {
       throw new NotFoundException(ERROR_MESSAGES.INVALID_DATABASE_INSTANCE_ID);
     }
 
-    const model = await this.repository.get(id, ignoreEncryptionErrors, omitFields);
+    const model = await this.repository.get(sessionMetadata, id, ignoreEncryptionErrors, omitFields);
 
     if (!model) {
       this.logger.error(`Database with ${id} was not Found`);
@@ -138,23 +146,28 @@ export class DatabaseService {
 
   /**
    * Create new database with auto-detection of database type, modules, etc.
+   * @param sessionMetadata
    * @param dto
    * @param uniqueCheck
    */
-  async create(dto: CreateDatabaseDto, uniqueCheck = false): Promise<Database> {
+  async create(sessionMetadata: SessionMetadata, dto: CreateDatabaseDto, uniqueCheck = false): Promise<Database> {
     try {
       this.logger.log('Creating new database.');
 
-      const database = await this.repository.create({
-        ...await this.databaseFactory.createDatabaseModel(classToClass(Database, dto)),
-        new: true,
-      }, uniqueCheck);
+      const database = await this.repository.create(
+        sessionMetadata,
+        {
+          ...await this.databaseFactory.createDatabaseModel(sessionMetadata, classToClass(Database, dto)),
+          new: true,
+        },
+        uniqueCheck,
+      );
 
       // todo: clarify if we need this and if yes - rethink implementation
       try {
         const client = await this.redisClientFactory.createClient(
           {
-            sessionMetadata: {} as SessionMetadata,
+            sessionMetadata,
             databaseId: database.id,
             context: ClientContext.Common,
           },
@@ -179,14 +192,21 @@ export class DatabaseService {
     }
   }
 
-  // todo: remove manualUpdate flag logic
+  /**
+   * Update database model by id
+   * @param sessionMetadata
+   * @param id
+   * @param dto
+   * @param manualUpdate
+   */
   public async update(
+    sessionMetadata: SessionMetadata,
     id: string,
     dto: UpdateDatabaseDto,
-    manualUpdate: boolean = true,
+    manualUpdate: boolean = true, // todo: remove manualUpdate flag logic
   ): Promise<Database> {
     this.logger.log(`Updating database: ${id}`);
-    const oldDatabase = await this.get(id, true);
+    const oldDatabase = await this.get(sessionMetadata, id, true);
 
     let database: Database;
     try {
@@ -197,12 +217,12 @@ export class DatabaseService {
           database.provider = undefined;
         }
 
-        database = await this.databaseFactory.createDatabaseModel(database);
+        database = await this.databaseFactory.createDatabaseModel(sessionMetadata, database);
 
         await this.redisClientStorage.removeManyByMetadata({ databaseId: id });
       }
 
-      database = await this.repository.update(id, database);
+      database = await this.repository.update(sessionMetadata, id, database);
 
       // todo: rethink
       this.analytics.sendInstanceEditedEvent(
@@ -220,23 +240,28 @@ export class DatabaseService {
 
   /**
    * Test connection for new/modified config before creating/updating database
+   * @param sessionMetadata
    * @param dto
    * @param id
    */
-  public async testConnection(dto: CreateDatabaseDto | UpdateDatabaseDto, id?: string): Promise<void> {
+  public async testConnection(
+    sessionMetadata: SessionMetadata,
+    dto: CreateDatabaseDto | UpdateDatabaseDto,
+    id?: string,
+  ): Promise<void> {
     let database: Database;
 
     if (id) {
       this.logger.log('Testing existing database connection');
 
-      database = await this.merge(await this.get(id, false), dto);
+      database = await this.merge(await this.get(sessionMetadata, id, false), dto);
     } else {
       this.logger.log('Testing new database connection');
       database = classToClass(Database, dto);
     }
 
     try {
-      await this.databaseFactory.createDatabaseModel(database);
+      await this.databaseFactory.createDatabaseModel(sessionMetadata, database);
 
       return;
     } catch (error) {
@@ -252,23 +277,28 @@ export class DatabaseService {
 
   /**
    * Clone database with updated fields
+   * @param sessionMetadata
    * @param id
    * @param dto
    */
-  public async clone(id: string, dto: UpdateDatabaseDto): Promise<Database> {
+  public async clone(sessionMetadata: SessionMetadata, id: string, dto: UpdateDatabaseDto): Promise<Database> {
     this.logger.log('Clone existing database');
     const database = await this.merge(
-      await this.get(id, false, ['id', 'sshOptions.id']),
+      await this.get(sessionMetadata, id, false, ['id', 'sshOptions.id']),
       dto,
     );
     if (DatabaseService.isConnectionAffected(dto)) {
-      return await this.create(database);
+      return await this.create(sessionMetadata, database);
     }
 
-    const createdDatabase = await this.repository.create({
-      ...classToClass(Database, database),
-      new: true,
-    }, false);
+    const createdDatabase = await this.repository.create(
+      sessionMetadata,
+      {
+        ...classToClass(Database, database),
+        new: true,
+      },
+      false,
+    );
 
     this.analytics.sendInstanceAddedEvent(createdDatabase);
     return createdDatabase;
@@ -278,13 +308,14 @@ export class DatabaseService {
    * Delete database instance by id
    * Also close all opened connections for this database
    * Also emit an event to entire app to be processed by other parts
+   * @param sessionMetadata
    * @param id
    */
-  async delete(id: string): Promise<void> {
+  async delete(sessionMetadata: SessionMetadata, id: string): Promise<void> {
     this.logger.log(`Deleting database: ${id}`);
-    const database = await this.get(id, true);
+    const database = await this.get(sessionMetadata, id, true);
     try {
-      await this.repository.delete(id);
+      await this.repository.delete(sessionMetadata, id);
       // todo: rethink
       await this.redisClientStorage.removeManyByMetadata({ databaseId: id });
       this.logger.log('Succeed to delete database instance.');
@@ -300,15 +331,16 @@ export class DatabaseService {
   /**
    * Bulk delete databases. Uses "delete" method and skipping error
    * Returns successfully deleted databases number
+   * @param sessionMetadata
    * @param ids
    */
-  async bulkDelete(ids: string[]): Promise<DeleteDatabasesResponse> {
+  async bulkDelete(sessionMetadata: SessionMetadata, ids: string[]): Promise<DeleteDatabasesResponse> {
     this.logger.log(`Deleting many database: ${ids}`);
 
     return {
       affected: sum(await Promise.all(ids.map(async (id) => {
         try {
-          await this.delete(id);
+          await this.delete(sessionMetadata, id);
           return 1;
         } catch (e) {
           return 0;
@@ -320,10 +352,11 @@ export class DatabaseService {
   /**
    * Export many databases by ids.
    * Get full database model. With or without passwords and certificates bodies.
+   * @param sessionMetadata
    * @param ids
    * @param withSecrets
    */
-  async export(ids: string[], withSecrets = false): Promise<ExportDatabase[]> {
+  async export(sessionMetadata: SessionMetadata, ids: string[], withSecrets = false): Promise<ExportDatabase[]> {
     const paths = !withSecrets ? this.exportSecurityFields : [];
 
     this.logger.log(`Exporting many database: ${ids}`);
@@ -336,7 +369,7 @@ export class DatabaseService {
     const entities: ExportDatabase[] = reject(
       await Promise.all(ids.map(async (id) => {
         try {
-          return await this.get(id);
+          return await this.get(sessionMetadata, id);
         } catch (e) {
           // ignore
         }

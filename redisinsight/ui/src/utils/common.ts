@@ -4,10 +4,17 @@ const baseApiUrl = process.env.RI_BASE_API_URL
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isWebApp = process.env.RI_APP_TYPE === 'web'
 const { apiPort } = window.app?.config || { apiPort: process.env.RI_APP_PORT }
+const hostedApiBaseUrl = process.env.RI_HOSTED_API_BASE_URL
 
-export const getBaseApiUrl = () => (!isDevelopment && isWebApp
-  ? window.location.origin
-  : `${baseApiUrl}:${apiPort}`)
+export const getBaseApiUrl = () => {
+  if (hostedApiBaseUrl) {
+    return hostedApiBaseUrl
+  }
+
+  return (!isDevelopment && isWebApp
+    ? window.location.origin
+    : `${baseApiUrl}:${apiPort}`)
+}
 
 export const getProxyPath = () => {
   if (window.__RI_PROXY_PATH__) {

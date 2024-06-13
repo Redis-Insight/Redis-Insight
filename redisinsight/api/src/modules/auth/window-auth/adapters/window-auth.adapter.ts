@@ -1,6 +1,6 @@
 import { INestApplication, Logger } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { BaseWsInstance, MessageMappingProperties } from '@nestjs/websockets';
+import { MessageMappingProperties } from '@nestjs/websockets';
 import { get } from 'lodash';
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';
@@ -10,6 +10,7 @@ import { WindowAuthService } from '../window-auth.service';
 
 export class WindowsAuthAdapter extends IoAdapter {
   private windowAuthService: WindowAuthService;
+
   private logger = new Logger('WindowsAuthAdapter');
 
   constructor(private app: INestApplication) {
@@ -30,6 +31,6 @@ export class WindowsAuthAdapter extends IoAdapter {
       return;
     }
 
-    return super.bindMessageHandlers(socket, handlers, transform);
+    super.bindMessageHandlers(socket, handlers, transform);
   }
 }

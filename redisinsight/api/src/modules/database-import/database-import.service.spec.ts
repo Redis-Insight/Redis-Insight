@@ -6,6 +6,7 @@ import {
   mockDatabaseImportAnalytics,
   mockDatabaseImportFile,
   mockDatabaseImportResponse,
+  mockSessionMetadata,
   mockSshImportService,
   MockType,
 } from 'src/__mocks__';
@@ -84,18 +85,21 @@ describe('DatabaseImportService', () => {
     });
 
     it('should import databases from json', async () => {
-      const response = await service.import(mockDatabaseImportFile);
+      const response = await service.import(mockSessionMetadata, mockDatabaseImportFile);
 
       expect(response).toEqual(mockDatabaseImportResponse);
       expect(analytics.sendImportResults).toHaveBeenCalledWith(mockDatabaseImportResponse);
     });
 
     it('should import databases from base64', async () => {
-      const response = await service.import({
-        ...mockDatabaseImportFile,
-        mimetype: 'binary/octet-stream',
-        buffer: Buffer.from(mockDatabaseImportFile.buffer.toString('base64')),
-      });
+      const response = await service.import(
+        mockSessionMetadata,
+        {
+          ...mockDatabaseImportFile,
+          mimetype: 'binary/octet-stream',
+          buffer: Buffer.from(mockDatabaseImportFile.buffer.toString('base64')),
+        },
+      );
 
       expect(response).toEqual({
         ...mockDatabaseImportResponse,
@@ -105,7 +109,7 @@ describe('DatabaseImportService', () => {
 
     it('should fail due to file was not provided', async () => {
       try {
-        await service.import(undefined);
+        await service.import(mockSessionMetadata, undefined);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(NoDatabaseImportFileProvidedException);
@@ -117,10 +121,13 @@ describe('DatabaseImportService', () => {
 
     it('should fail due to file exceeded size limitations', async () => {
       try {
-        await service.import({
-          ...mockDatabaseImportFile,
-          size: 10 * 1024 * 1024 + 1,
-        });
+        await service.import(
+          mockSessionMetadata,
+          {
+            ...mockDatabaseImportFile,
+            size: 10 * 1024 * 1024 + 1,
+          },
+        );
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(SizeLimitExceededDatabaseImportFileException);
@@ -130,10 +137,13 @@ describe('DatabaseImportService', () => {
 
     it('should fail due to incorrect json', async () => {
       try {
-        await service.import({
-          ...mockDatabaseImportFile,
-          buffer: Buffer.from([0, 21]),
-        });
+        await service.import(
+          mockSessionMetadata,
+          {
+            ...mockDatabaseImportFile,
+            buffer: Buffer.from([0, 21]),
+          },
+        );
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(UnableToParseDatabaseImportFileException);
@@ -143,12 +153,15 @@ describe('DatabaseImportService', () => {
 
     it('should fail due to incorrect base64 + truncate filename', async () => {
       try {
-        await service.import({
-          ...mockDatabaseImportFile,
-          originalname: (new Array(1_000).fill(1)).join(''),
-          mimetype: 'binary/octet-stream',
-          buffer: Buffer.from([0, 21]),
-        });
+        await service.import(
+          mockSessionMetadata,
+          {
+            ...mockDatabaseImportFile,
+            originalname: (new Array(1_000).fill(1)).join(''),
+            mimetype: 'binary/octet-stream',
+            buffer: Buffer.from([0, 21]),
+          },
+        );
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(UnableToParseDatabaseImportFileException);
@@ -159,65 +172,105 @@ describe('DatabaseImportService', () => {
 
   describe('createDatabase', () => {
     it('should create standalone database', async () => {
-      await service['createDatabase']({
-        ...mockDatabase,
-        provider: 'RE_CLOUD',
-      }, 0);
+      await service['createDatabase'](
+        mockSessionMetadata,
+        {
+          ...mockDatabase,
+          provider: 'RE_CLOUD',
+        },
+        0,
+      );
 
-      expect(databaseRepository.create).toHaveBeenCalledWith({
-        ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
-        provider: 'RE_CLOUD',
-        new: true,
-      }, false);
+      expect(databaseRepository.create).toHaveBeenCalledWith(
+        mockSessionMetadata,
+        {
+          ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
+          provider: 'RE_CLOUD',
+          new: true,
+        },
+        false,
+      );
     });
     it('should create standalone with created name', async () => {
-      await service['createDatabase']({
-        ...mockDatabase,
-        name: undefined,
-      }, 0);
+      await service['createDatabase'](
+        mockSessionMetadata,
+        {
+          ...mockDatabase,
+          name: undefined,
+        },
+        0,
+      );
 
-      expect(databaseRepository.create).toHaveBeenCalledWith({
-        ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
-        name: `${mockDatabase.host}:${mockDatabase.port}`,
-        new: true,
-      }, false);
+      expect(databaseRepository.create).toHaveBeenCalledWith(
+        mockSessionMetadata,
+        {
+          ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
+          name: `${mockDatabase.host}:${mockDatabase.port}`,
+          new: true,
+        },
+        false,
+      );
     });
     it('should create standalone with none compressor', async () => {
-      await service['createDatabase']({
-        ...mockDatabase,
-        compressor: 'custom',
-      }, 0);
+      await service['createDatabase'](
+        mockSessionMetadata,
+        {
+          ...mockDatabase,
+          compressor: 'custom',
+        },
+        0,
+      );
 
-      expect(databaseRepository.create).toHaveBeenCalledWith({
-        ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
-        compressor: Compressor.NONE,
-        new: true,
-      }, false);
+      expect(databaseRepository.create).toHaveBeenCalledWith(
+        mockSessionMetadata,
+        {
+          ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
+          compressor: Compressor.NONE,
+          new: true,
+        },
+        false,
+      );
     });
     it('should create standalone with compressor', async () => {
-      await service['createDatabase']({
-        ...mockDatabase,
-        compressor: Compressor.GZIP,
-      }, 0);
+      await service['createDatabase'](
+        mockSessionMetadata,
+        {
+          ...mockDatabase,
+          compressor: Compressor.GZIP,
+        },
+        0,
+      );
 
-      expect(databaseRepository.create).toHaveBeenCalledWith({
-        ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
-        compressor: Compressor.GZIP,
-        new: true,
-      }, false);
+      expect(databaseRepository.create).toHaveBeenCalledWith(
+        mockSessionMetadata,
+        {
+          ...pick(mockDatabase, ['host', 'port', 'name', 'connectionType', 'compressor', 'modules']),
+          compressor: Compressor.GZIP,
+          new: true,
+        },
+        false,
+      );
     });
     it('should create cluster database', async () => {
-      await service['createDatabase']({
-        ...mockDatabase,
-        connectionType: undefined,
-        cluster: true,
-      }, 0);
+      await service['createDatabase'](
+        mockSessionMetadata,
+        {
+          ...mockDatabase,
+          connectionType: undefined,
+          cluster: true,
+        },
+        0,
+      );
 
-      expect(databaseRepository.create).toHaveBeenCalledWith({
-        ...pick(mockDatabase, ['host', 'port', 'name', 'compressor', 'modules']),
-        connectionType: ConnectionType.CLUSTER,
-        new: true,
-      }, false);
+      expect(databaseRepository.create).toHaveBeenCalledWith(
+        mockSessionMetadata,
+        {
+          ...pick(mockDatabase, ['host', 'port', 'name', 'compressor', 'modules']),
+          connectionType: ConnectionType.CLUSTER,
+          new: true,
+        },
+        false,
+      );
     });
   });
 

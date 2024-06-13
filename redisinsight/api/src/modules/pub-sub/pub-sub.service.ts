@@ -7,7 +7,7 @@ import { PublishResponse } from 'src/modules/pub-sub/dto/publish.response';
 import { PublishDto } from 'src/modules/pub-sub/dto/publish.dto';
 import { PubSubAnalyticsService } from 'src/modules/pub-sub/pub-sub.analytics.service';
 import { catchAclError } from 'src/utils';
-import { ClientMetadata } from 'src/common/models';
+import { ClientMetadata, SessionMetadata } from 'src/common/models';
 import { DatabaseClientFactory } from 'src/modules/database/providers/database.client.factory';
 
 @Injectable()
@@ -26,11 +26,11 @@ export class PubSubService {
    * @param userClient
    * @param dto
    */
-  async subscribe(userClient: UserClient, dto: SubscribeDto) {
+  async subscribe(sessionMetadata: SessionMetadata, userClient: UserClient, dto: SubscribeDto) {
     try {
       this.logger.log('Subscribing to channels(s)');
 
-      const session = await this.sessionProvider.getOrCreateUserSession(userClient);
+      const session = await this.sessionProvider.getOrCreateUserSession(sessionMetadata, userClient);
       await Promise.all(dto.subscriptions.map((subDto) => session.subscribe(
         this.subscriptionProvider.createSubscription(userClient, subDto),
       )));
@@ -51,11 +51,11 @@ export class PubSubService {
    * @param userClient
    * @param dto
    */
-  async unsubscribe(userClient: UserClient, dto: SubscribeDto) {
+  async unsubscribe(sessionMetadata: SessionMetadata, userClient: UserClient, dto: SubscribeDto) {
     try {
       this.logger.log('Unsubscribing from channels(s)');
 
-      const session = await this.sessionProvider.getOrCreateUserSession(userClient);
+      const session = await this.sessionProvider.getOrCreateUserSession(sessionMetadata, userClient);
       await Promise.all(dto.subscriptions.map((subDto) => session.unsubscribe(
         this.subscriptionProvider.createSubscription(userClient, subDto),
       )));

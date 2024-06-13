@@ -6,6 +6,7 @@ import {
   mockCommonClientMetadata,
   mockDatabaseClientFactory,
   mockStandaloneRedisClient,
+  mockSessionMetadata,
 } from 'src/__mocks__';
 import { PubSubService } from 'src/modules/pub-sub/pub-sub.service';
 import { UserSessionProvider } from 'src/modules/pub-sub/providers/user-session.provider';
@@ -92,17 +93,21 @@ describe('PubSubService', () => {
 
   describe('subscribe', () => {
     it('should subscribe to a single channel', async () => {
-      await service.subscribe(mockUserClient, { subscriptions: [mockSubscriptionDto] });
+      await service.subscribe(mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto] });
       expect(mockUserSession.subscribe).toHaveBeenCalledTimes(1);
     });
     it('should subscribe to a multiple channels', async () => {
-      await service.subscribe(mockUserClient, { subscriptions: [mockSubscriptionDto, mockPSubscriptionDto] });
+      await service.subscribe(
+        mockSessionMetadata,
+        mockUserClient,
+        { subscriptions: [mockSubscriptionDto, mockPSubscriptionDto] }
+      );
       expect(mockUserSession.subscribe).toHaveBeenCalledTimes(2);
     });
     it('should handle HTTP error', async () => {
       try {
         mockSubscribe.mockRejectedValueOnce(new NotFoundException('Not Found'));
-        await service.subscribe(mockUserClient, { subscriptions: [mockSubscriptionDto] });
+        await service.subscribe(mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto] });
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -111,7 +116,7 @@ describe('PubSubService', () => {
     it('should handle acl error', async () => {
       try {
         mockSubscribe.mockRejectedValueOnce(new Error('NOPERM'));
-        await service.subscribe(mockUserClient, { subscriptions: [mockSubscriptionDto] });
+        await service.subscribe(mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto] });
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(ForbiddenException);
@@ -121,17 +126,19 @@ describe('PubSubService', () => {
 
   describe('unsubscribe', () => {
     it('should unsubscribe from a single channel', async () => {
-      await service.unsubscribe(mockUserClient, { subscriptions: [mockSubscriptionDto] });
+      await service.unsubscribe(mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto] });
       expect(mockUserSession.unsubscribe).toHaveBeenCalledTimes(1);
     });
     it('should unsubscribe from multiple channels', async () => {
-      await service.unsubscribe(mockUserClient, { subscriptions: [mockSubscriptionDto, mockPSubscriptionDto] });
+      await service.unsubscribe(
+        mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto, mockPSubscriptionDto] }
+      );
       expect(mockUserSession.unsubscribe).toHaveBeenCalledTimes(2);
     });
     it('should handle HTTP error', async () => {
       try {
         mockUnsubscribe.mockRejectedValueOnce(new NotFoundException('Not Found'));
-        await service.unsubscribe(mockUserClient, { subscriptions: [mockSubscriptionDto] });
+        await service.unsubscribe(mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto] });
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -140,7 +147,7 @@ describe('PubSubService', () => {
     it('should handle acl error', async () => {
       try {
         mockUnsubscribe.mockRejectedValueOnce(new Error('NOPERM'));
-        await service.unsubscribe(mockUserClient, { subscriptions: [mockSubscriptionDto] });
+        await service.unsubscribe(mockSessionMetadata, mockUserClient, { subscriptions: [mockSubscriptionDto] });
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(ForbiddenException);

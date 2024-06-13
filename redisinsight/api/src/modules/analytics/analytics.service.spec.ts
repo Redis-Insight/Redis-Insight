@@ -1,13 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   mockAppSettings,
-  mockAppSettingsWithoutPermissions, mockAppVersion, mockControlGroup, mockControlNumber,
+  mockAppSettingsWithoutPermissions, mockAppVersion, mockConstantsProvider, mockControlGroup, mockControlNumber,
   mockSettingsService,
   MockType,
 } from 'src/__mocks__';
 import { TelemetryEvents } from 'src/constants';
 import { AppType } from 'src/modules/server/models/server';
 import { SettingsService } from 'src/modules/settings/settings.service';
+import { ConstantsProvider } from 'src/modules/constants/providers/constants.provider';
 import {
   AnalyticsService,
   Telemetry,
@@ -39,6 +40,10 @@ describe('AnalyticsService', () => {
         {
           provide: SettingsService,
           useFactory: mockSettingsService,
+        },
+        {
+          provide: ConstantsProvider,
+          useFactory: mockConstantsProvider,
         },
       ],
     }).compile();

@@ -1,9 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
-  IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min,
+  IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min, Max,
 } from 'class-validator';
+import config, { Config } from 'src/utils/config';
 import { RedisDataType } from './key.dto';
+
+const scanConfig = config.get('redis_scan') as Config['redis_scan'];
+const { countThreshold, countThresholdMax } = scanConfig;
 
 export class GetKeysDto {
   @ApiProperty({
@@ -61,4 +65,14 @@ export class GetKeysDto {
   @IsOptional()
   @Transform((val) => val === true || val === 'true')
   keysInfo?: boolean = true;
+
+  @ApiPropertyOptional({
+    description: 'The maximum number of iterations when performing a Redis SCAN operation.',
+    type: Number,
+    default: true,
+  })
+  @IsOptional()
+  @IsInt()
+  @Max(countThresholdMax)
+  countThreshold: number = countThreshold;
 }

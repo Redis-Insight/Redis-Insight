@@ -10,7 +10,7 @@ import {
   validateApiCall,
   JoiRedisString,
 } from '../deps';
-import { initSettings, setAppSettings } from '../../helpers/local-db';
+import { initSettings } from '../../helpers/local-db';
 const { server, request, constants, rte } = deps;
 
 // endpoint to test
@@ -188,10 +188,10 @@ describe('POST /databases/:id/keys', () => {
           data: {
             count: 100,
             cursor: '0',
-            match: 'not_exist_key*'
+            match: 'not_exist_key*',
+            countThreshold: 500,
           },
           responseSchema,
-          before: async () => await setAppSettings({ scanThreshold: 500 }),
           after: async () => await initSettings(),
           checkFn: ({ body }) => {
             const result = {

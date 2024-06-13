@@ -8,6 +8,7 @@ import {
 import { NextFunction, Request, Response } from 'express';
 import ERROR_MESSAGES from 'src/constants/error-messages';
 import { DatabaseService } from 'src/modules/database/database.service';
+import { sessionMetadataFromRequest } from 'src/common/decorators';
 
 @Injectable()
 export class RedisConnectionMiddleware implements NestMiddleware {
@@ -22,7 +23,10 @@ export class RedisConnectionMiddleware implements NestMiddleware {
     if (!instanceIdFromReq) {
       this.throwError(req, ERROR_MESSAGES.UNDEFINED_INSTANCE_ID);
     }
-    const existDatabaseInstance = await this.databaseService.exists(instanceIdFromReq);
+
+    const sessionMetadata = sessionMetadataFromRequest(req);
+
+    const existDatabaseInstance = await this.databaseService.exists(sessionMetadata, instanceIdFromReq);
     if (!existDatabaseInstance) {
       throw new NotFoundException(ERROR_MESSAGES.INVALID_DATABASE_INSTANCE_ID);
     }

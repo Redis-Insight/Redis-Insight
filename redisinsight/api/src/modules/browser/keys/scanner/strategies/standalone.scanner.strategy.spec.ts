@@ -1,18 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { when } from 'jest-when';
 import {
-  mockAppSettingsInitial,
   mockRedisNoPermError,
-  mockSettingsService,
   mockStandaloneRedisClient,
-  MockType,
 } from 'src/__mocks__';
 import { ReplyError } from 'src/models';
 import config from 'src/utils/config';
 import { GetKeyInfoResponse, GetKeysDto, RedisDataType } from 'src/modules/browser/keys/dto';
 import { BrowserToolKeysCommands } from 'src/modules/browser/constants/browser-tool-commands';
 import { IScannerNodeKeys } from 'src/modules/browser/keys/scanner/scanner.interface';
-import { SettingsService } from 'src/modules/settings/settings.service';
 import * as Utils from 'src/modules/redis/utils/keys.util';
 import { StandaloneScannerStrategy } from 'src/modules/browser/keys/scanner/strategies/standalone.scanner.strategy';
 
@@ -45,7 +41,6 @@ const mockKeyInfo: GetKeyInfoResponse = {
 
 describe('StandaloneScannerStrategy', () => {
   let strategy: StandaloneScannerStrategy;
-  let settingsService: MockType<SettingsService>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -53,20 +48,14 @@ describe('StandaloneScannerStrategy', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         StandaloneScannerStrategy,
-        {
-          provide: SettingsService,
-          useFactory: mockSettingsService,
-        },
       ],
     }).compile();
 
     strategy = module.get(StandaloneScannerStrategy);
-    settingsService = module.get(SettingsService);
-    settingsService.getAppSettings.mockResolvedValue(mockAppSettingsInitial);
   });
 
   describe('getKeys', () => {
-    const getKeysDto: GetKeysDto = { cursor: '0', count: 15, keysInfo: true };
+    const getKeysDto: GetKeysDto = { cursor: '0', count: 15, keysInfo: true, countThreshold: 1000 };
     it('should return appropriate value with filter by type', async () => {
       const args = { ...getKeysDto, type: RedisDataType.String, match: 'pattern*' };
       jest.spyOn(Utils, 'getTotalKeys').mockResolvedValue(mockGetTotalResponse1);
@@ -223,7 +212,7 @@ describe('StandaloneScannerStrategy', () => {
           cursor: 1,
           total: 1000000,
           scanned:
-            Math.trunc(REDIS_SCAN_CONFIG.countThreshold / getKeysDto.count)
+            Math.trunc(getKeysDto.countThreshold / getKeysDto.count)
             * getKeysDto.count
             + getKeysDto.count,
           keys: [],
@@ -248,7 +237,7 @@ describe('StandaloneScannerStrategy', () => {
           cursor: 1,
           total: null,
           scanned:
-            Math.trunc(REDIS_SCAN_CONFIG.countThreshold / getKeysDto.count)
+            Math.trunc(getKeysDto.countThreshold / getKeysDto.count)
             * getKeysDto.count
             + getKeysDto.count,
           keys: [],
@@ -265,6 +254,7 @@ describe('StandaloneScannerStrategy', () => {
       const result = await strategy.getKeys(mockStandaloneRedisClient, {
         cursor: '0',
         type: RedisDataType.String,
+        countThreshold: 1000,
       });
 
       expect(strategy['scan']).toHaveBeenLastCalledWith(
@@ -272,6 +262,7 @@ describe('StandaloneScannerStrategy', () => {
         mockNodeEmptyResult,
         '*',
         REDIS_SCAN_CONFIG.countDefault,
+        1000,
         RedisDataType.String,
       );
       expect(result).toEqual([mockNodeEmptyResult]);

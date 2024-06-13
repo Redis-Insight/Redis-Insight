@@ -12,7 +12,7 @@ import { DatabaseRecommendation } from 'src/modules/database-recommendation/mode
 import { ModifyDatabaseRecommendationDto } from 'src/modules/database-recommendation/dto';
 import { EncryptionService } from 'src/modules/encryption/encryption.service';
 import { Recommendation } from 'src/modules/database-analysis/models/recommendation';
-import { ClientMetadata } from 'src/common/models';
+import { ClientMetadata, SessionMetadata } from 'src/common/models';
 import { sortRecommendations, classToClass } from 'src/utils';
 
 import ERROR_MESSAGES from 'src/constants/error-messages';
@@ -41,9 +41,10 @@ export class LocalDatabaseRecommendationRepository extends DatabaseRecommendatio
 
   /**
    * Save entire entity
+   * @param _
    * @param entity
    */
-  async create(entity: DatabaseRecommendation): Promise<DatabaseRecommendation> {
+  async create(_: SessionMetadata, entity: DatabaseRecommendation): Promise<DatabaseRecommendation> {
     this.logger.log('Creating database recommendation');
 
     try {
@@ -138,7 +139,7 @@ export class LocalDatabaseRecommendationRepository extends DatabaseRecommendatio
 
     this.logger.log(`Updated database recommendation with id:${id}`);
 
-    return this.get(id);
+    return this.get(clientMetadata.sessionMetadata, id);
   }
 
   /**
@@ -164,9 +165,10 @@ export class LocalDatabaseRecommendationRepository extends DatabaseRecommendatio
 
   /**
    * Get recommendation by id
+   * @param _
    * @param id
    */
-  public async get(id: string): Promise<DatabaseRecommendation> {
+  public async get(_: SessionMetadata, id: string): Promise<DatabaseRecommendation> {
     this.logger.log(`Getting recommendation with id: ${id}`);
 
     const entity = await this.repository.findOneBy({ id });
@@ -203,7 +205,7 @@ export class LocalDatabaseRecommendationRepository extends DatabaseRecommendatio
               params: sortedRecommendations[i].params,
             },
           );
-          await this.create(entity);
+          await this.create(clientMetadata.sessionMetadata, entity);
         }
       }
     } catch (e) {
@@ -223,7 +225,7 @@ export class LocalDatabaseRecommendationRepository extends DatabaseRecommendatio
 
       if (!affected) {
         this.logger.error(`Recommendation with id:${id} was not Found`);
-        throw new NotFoundException(ERROR_MESSAGES.DATABASE_RECOMMENDATION_NOT_FOUND);
+        return Promise.reject(new NotFoundException(ERROR_MESSAGES.DATABASE_RECOMMENDATION_NOT_FOUND));
       }
 
       this.logger.log('Succeed to delete recommendation.');
@@ -231,5 +233,12 @@ export class LocalDatabaseRecommendationRepository extends DatabaseRecommendatio
       this.logger.error(`Failed to delete recommendation: ${id}`, error);
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+  public async getTotalUnread(clientMetadata: ClientMetadata, databaseId: string): Promise<number> {
+    return await this.repository
+      .createQueryBuilder()
+      .where({ read: false, databaseId })
+      .getCount();
   }
 }

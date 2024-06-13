@@ -23,6 +23,26 @@ export const knownFeatures: Record<KnownFeatures, IFeatureFlag> = {
     name: KnownFeatures.RedisClient,
     storage: FeatureStorage.Database,
   },
+  [KnownFeatures.appSettings]: {
+    name: KnownFeatures.appSettings,
+    storage: FeatureStorage.Database,
+  },
+  [KnownFeatures.profiler]: {
+    name: KnownFeatures.profiler,
+    storage: FeatureStorage.Database,
+  },
+  [KnownFeatures.dbAnalysis]: {
+    name: KnownFeatures.dbAnalysis,
+    storage: FeatureStorage.Database,
+  },
+  [KnownFeatures.appNotifications]: {
+    name: KnownFeatures.appNotifications,
+    storage: FeatureStorage.Database,
+  },
+  [KnownFeatures.triggersAndFunctions]: {
+    name: KnownFeatures.triggersAndFunctions,
+    storage: FeatureStorage.Database,
+  },
   [KnownFeatures.DocumentationChat]: {
     name: KnownFeatures.DocumentationChat,
     storage: FeatureStorage.Database,

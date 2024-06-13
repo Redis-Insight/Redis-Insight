@@ -4,7 +4,7 @@ import { ClientContext, ClientMetadata } from 'src/common/models';
 import { Validator } from 'class-validator';
 import { API_HEADER_DATABASE_INDEX, API_PARAM_DATABASE_ID } from 'src/common/constants';
 import { ApiHeader, ApiParam } from '@nestjs/swagger';
-import { sessionMetadataFromRequestFactory } from 'src/common/decorators/session/session-metadata.decorator';
+import { sessionMetadataFromRequestExecutionContext } from 'src/common/decorators/session/session-metadata.decorator';
 
 const validator = new Validator();
 
@@ -32,7 +32,7 @@ export const clientMetadataParamFactory = (
   }
 
   const clientMetadata = plainToClass(ClientMetadata, {
-    sessionMetadata: sessionMetadataFromRequestFactory(undefined, ctx),
+    sessionMetadata: sessionMetadataFromRequestExecutionContext(undefined, ctx),
     databaseId,
     uniqueId,
     context: options?.context || ClientContext.Common,

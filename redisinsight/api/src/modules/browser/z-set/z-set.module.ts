@@ -1,10 +1,8 @@
 import {
   DynamicModule,
-  MiddlewareConsumer,
   Module,
 } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
-import { RedisConnectionMiddleware } from 'src/middleware/redis-connection.middleware';
 import { ZSetService } from 'src/modules/browser/z-set/z-set.service';
 import { ZSetController } from 'src/modules/browser/z-set/z-set.controller';
 
@@ -22,11 +20,5 @@ export class ZSetModule {
       controllers: [ZSetController],
       providers: [ZSetService],
     };
-  }
-
-  configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(RedisConnectionMiddleware)
-      .forRoutes(ZSetController);
   }
 }

@@ -6,6 +6,7 @@ import { MonitorSettings } from 'src/modules/profiler/models/monitor-settings';
 import { LogFileProvider } from 'src/modules/profiler/providers/log-file.provider';
 import { RedisObserverProvider } from 'src/modules/profiler/providers/redis-observer.provider';
 import { ProfilerClientProvider } from 'src/modules/profiler/providers/profiler-client.provider';
+import { SessionMetadata } from 'src/common/models';
 
 @Injectable()
 export class ProfilerService {
@@ -21,15 +22,26 @@ export class ProfilerService {
    * Create or use existing user client to send monitor data from redis client to the user
    * We are storing user clients to have a possibility to "pause" logs without disconnecting
    *
+   * @param sessionMetadata
    * @param instanceId
    * @param client
    * @param settings
    */
-  async addListenerForInstance(instanceId: string, client: Socket, settings: MonitorSettings = null) {
+  async addListenerForInstance(
+    sessionMetadata: SessionMetadata,
+    instanceId: string,
+    client: Socket,
+    settings: MonitorSettings = null,
+  ) {
     this.logger.log(`Add listener for instance: ${instanceId}.`);
 
-    const profilerClient = await this.profilerClientProvider.getOrCreateClient(instanceId, client, settings);
-    const monitorObserver = await this.redisObserverProvider.getOrCreateObserver(instanceId);
+    const profilerClient = await this.profilerClientProvider.getOrCreateClient(
+      sessionMetadata,
+      instanceId,
+      client,
+      settings,
+    );
+    const monitorObserver = await this.redisObserverProvider.getOrCreateObserver(sessionMetadata, instanceId);
     await monitorObserver.subscribe(profilerClient);
   }
 

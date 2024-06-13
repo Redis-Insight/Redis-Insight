@@ -52,6 +52,26 @@ export class FeatureFlagProvider {
       this.featuresConfigService,
       this.settingsService,
     ));
+    this.strategies.set(KnownFeatures.appSettings, new CommonFlagStrategy(
+      this.featuresConfigService,
+      this.settingsService,
+    ));
+    this.strategies.set(KnownFeatures.profiler, new CommonFlagStrategy(
+      this.featuresConfigService,
+      this.settingsService,
+    ));
+    this.strategies.set(KnownFeatures.dbAnalysis, new CommonFlagStrategy(
+      this.featuresConfigService,
+      this.settingsService,
+    ));
+    this.strategies.set(KnownFeatures.appNotifications, new CommonFlagStrategy(
+      this.featuresConfigService,
+      this.settingsService,
+    ));
+    this.strategies.set(KnownFeatures.triggersAndFunctions, new CommonFlagStrategy(
+      this.featuresConfigService,
+      this.settingsService,
+    ));
   }
 
   getStrategy(name: string): FeatureFlagStrategy {

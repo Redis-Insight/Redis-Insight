@@ -75,16 +75,22 @@ export class PluginsService {
   /**
    * Save plugin state
    *
+   * @param clientMetadata
    * @param visualizationId
    * @param commandExecutionId
    * @param dto
    */
-  async saveState(visualizationId: string, commandExecutionId: string, dto: CreatePluginStateDto): Promise<void> {
+  async saveState(
+    clientMetadata: ClientMetadata,
+    visualizationId: string,
+    commandExecutionId: string,
+    dto: CreatePluginStateDto,
+  ): Promise<void> {
     if (JSON.stringify(dto.state).length > PLUGINS_CONFIG.stateMaxSize) {
       throw new BadRequestException(ERROR_MESSAGES.PLUGIN_STATE_MAX_SIZE(PLUGINS_CONFIG.stateMaxSize));
     }
 
-    await this.pluginStateRepository.upsert({
+    await this.pluginStateRepository.upsert(clientMetadata.sessionMetadata, {
       visualizationId,
       commandExecutionId,
       ...dto,
@@ -94,11 +100,16 @@ export class PluginsService {
   /**
    * Get plugin state
    *
+   * @param clientMetadata
    * @param visualizationId
    * @param commandExecutionId
    */
-  async getState(visualizationId: string, commandExecutionId: string): Promise<PluginState> {
-    return this.pluginStateRepository.getOne(visualizationId, commandExecutionId);
+  async getState(
+    clientMetadata: ClientMetadata,
+    visualizationId: string,
+    commandExecutionId: string,
+  ): Promise<PluginState> {
+    return this.pluginStateRepository.getOne(clientMetadata.sessionMetadata, visualizationId, commandExecutionId);
   }
 
   /**

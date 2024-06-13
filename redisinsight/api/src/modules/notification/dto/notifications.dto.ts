@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { NotificationDto } from './notification.dto';
+import { Notification } from 'src/modules/notification/models/notification';
 
 export class NotificationsDto {
   @ApiProperty({
-    type: () => NotificationDto,
+    type: () => Notification,
     isArray: true,
     description: 'Ordered notifications list',
   })
-  notifications: NotificationDto[];
+  notifications: Notification[];
 
   @ApiProperty({
     type: Number,
@@ -15,8 +15,4 @@ export class NotificationsDto {
     description: 'Number of unread notifications',
   })
   totalUnread: number;
-
-  constructor(entity: Partial<NotificationsDto>) {
-    Object.assign(this, entity);
-  }
 }

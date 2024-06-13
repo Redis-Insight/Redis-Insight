@@ -13,12 +13,13 @@ import { ApiEndpoint } from 'src/decorators/api-endpoint.decorator';
 import { Database } from 'src/modules/database/models/database';
 import { DiscoverSentinelMastersDto } from 'src/modules/redis-sentinel/dto/discover.sentinel-masters.dto';
 import { SentinelMaster } from 'src/modules/redis-sentinel/models/sentinel-master';
-import { ActionStatus } from 'src/common/models';
+import { ActionStatus, SessionMetadata } from 'src/common/models';
 import { Response } from 'express';
 import { RedisSentinelService } from 'src/modules/redis-sentinel/redis-sentinel.service';
 import { CreateSentinelDatabasesDto } from 'src/modules/redis-sentinel/dto/create.sentinel.databases.dto';
 import { CreateSentinelDatabaseResponse } from 'src/modules/redis-sentinel/dto/create.sentinel.database.response';
 import { BuildType } from 'src/modules/server/models/server';
+import { RequestSessionMetadata } from 'src/common/decorators';
 
 @ApiTags('Redis OSS Sentinel')
 @Controller('redis-sentinel')
@@ -70,10 +71,11 @@ export class RedisSentinelController {
   })
   @UsePipes(new ValidationPipe({ transform: true }))
   async addSentinelMasters(
-    @Body() dto: CreateSentinelDatabasesDto,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: CreateSentinelDatabasesDto,
       @Res() res: Response,
   ): Promise<Response> {
-    const result = await this.redisSentinelService.createSentinelDatabases(dto);
+    const result = await this.redisSentinelService.createSentinelDatabases(sessionMetadata, dto);
     const hasSuccessResult = result.some(
       (addResponse: CreateSentinelDatabaseResponse) => addResponse.status === ActionStatus.Success,
     );

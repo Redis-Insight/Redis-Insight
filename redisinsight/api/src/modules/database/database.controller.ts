@@ -23,8 +23,8 @@ import { UpdateDatabaseDto } from 'src/modules/database/dto/update.database.dto'
 import { BuildType } from 'src/modules/server/models/server';
 import { DeleteDatabasesDto } from 'src/modules/database/dto/delete.databases.dto';
 import { DeleteDatabasesResponse } from 'src/modules/database/dto/delete.databases.response';
-import { ClientMetadataParam } from 'src/common/decorators';
-import { ClientMetadata } from 'src/common/models';
+import { ClientMetadataParam, RequestSessionMetadata } from 'src/common/decorators';
+import { ClientMetadata, SessionMetadata } from 'src/common/models';
 import { ExportDatabasesDto } from 'src/modules/database/dto/export.databases.dto';
 import { ExportDatabase } from 'src/modules/database/models/export-database';
 import { DatabaseResponse } from 'src/modules/database/dto/database.response';
@@ -51,8 +51,10 @@ export class DatabaseController {
       },
     ],
   })
-  async list(): Promise<Database[]> {
-    return this.service.list();
+  async list(
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+  ): Promise<Database[]> {
+    return this.service.list(sessionMetadata);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -69,9 +71,10 @@ export class DatabaseController {
     ],
   })
   async get(
-    @Param('id') id: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('id') id: string,
   ): Promise<DatabaseResponse> {
-    return classToClass(DatabaseResponse, await this.service.get(id));
+    return classToClass(DatabaseResponse, await this.service.get(sessionMetadata, id));
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -96,9 +99,10 @@ export class DatabaseController {
     }),
   )
   async create(
-    @Body() dto: CreateDatabaseDto,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: CreateDatabaseDto,
   ): Promise<DatabaseResponse> {
-    return classToClass(DatabaseResponse, await this.service.create(dto, true));
+    return classToClass(DatabaseResponse, await this.service.create(sessionMetadata, dto, true));
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -123,10 +127,11 @@ export class DatabaseController {
     }),
   )
   async update(
-    @Param('id') id: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('id') id: string,
       @Body() database: UpdateDatabaseDto,
   ): Promise<DatabaseResponse> {
-    return classToClass(DatabaseResponse, await this.service.update(id, database, true));
+    return classToClass(DatabaseResponse, await this.service.update(sessionMetadata, id, database, true));
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -151,10 +156,11 @@ export class DatabaseController {
     }),
   )
   async clone(
-    @Param('id') id: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('id') id: string,
       @Body() database: UpdateDatabaseDto,
   ): Promise<DatabaseResponse> {
-    return classToClass(DatabaseResponse, await this.service.clone(id, database));
+    return classToClass(DatabaseResponse, await this.service.clone(sessionMetadata, id, database));
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -175,9 +181,10 @@ export class DatabaseController {
     }),
   )
   async testConnection(
-    @Body() dto: CreateDatabaseDto,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: CreateDatabaseDto,
   ): Promise<void> {
-    return await this.service.testConnection(dto);
+    return await this.service.testConnection(sessionMetadata, dto);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -199,10 +206,11 @@ export class DatabaseController {
     }),
   )
   async testExistConnection(
-    @Param('id') id: string,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('id') id: string,
       @Body() dto: UpdateDatabaseDto,
   ): Promise<void> {
-    return this.service.testConnection(dto, id);
+    return this.service.testConnection(sessionMetadata, dto, id);
   }
 
   @Delete('/:id')
@@ -211,8 +219,11 @@ export class DatabaseController {
     description: 'Delete database instance by id',
     excludeFor: [BuildType.RedisStack],
   })
-  async deleteDatabaseInstance(@Param('id') id: string): Promise<void> {
-    await this.service.delete(id);
+  async deleteDatabaseInstance(
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Param('id') id: string,
+  ): Promise<void> {
+    await this.service.delete(sessionMetadata, id);
   }
 
   @Delete('')
@@ -230,9 +241,10 @@ export class DatabaseController {
   })
   @UsePipes(new ValidationPipe({ transform: true }))
   async bulkDeleteDatabaseInstance(
-    @Body() dto: DeleteDatabasesDto,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: DeleteDatabasesDto,
   ): Promise<DeleteDatabasesResponse> {
-    return await this.service.bulkDelete(dto.ids);
+    return await this.service.bulkDelete(sessionMetadata, dto.ids);
   }
 
   @Get(':id/connect')
@@ -271,8 +283,9 @@ export class DatabaseController {
   })
   @UsePipes(new ValidationPipe({ transform: true }))
   async exportConnections(
-    @Body() dto: ExportDatabasesDto,
+    @RequestSessionMetadata() sessionMetadata: SessionMetadata,
+      @Body() dto: ExportDatabasesDto,
   ): Promise<ExportDatabase[]> {
-    return await this.service.export(dto.ids, dto.withSecrets);
+    return await this.service.export(sessionMetadata, dto.ids, dto.withSecrets);
   }
 }

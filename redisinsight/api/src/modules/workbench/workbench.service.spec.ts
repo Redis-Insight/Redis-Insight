@@ -206,7 +206,6 @@ describe('WorkbenchService', () => {
       }
     });
   });
-
   describe('createCommandExecutions', () => {
     it('should successfully execute commands and save them', async () => {
       workbenchCommandsExecutor.sendCommand.mockResolvedValueOnce(
@@ -321,12 +320,11 @@ describe('WorkbenchService', () => {
       }
     });
   });
-
   describe('listCommandExecutions', () => {
     it('should return list of command executions', async () => {
       commandExecutionProvider.getList.mockResolvedValueOnce([mockCommandExecution, mockCommandExecution]);
 
-      const result = await service.listCommandExecutions(mockWorkbenchClientMetadata.databaseId);
+      const result = await service.listCommandExecutions(mockWorkbenchClientMetadata);
 
       expect(result).toEqual([mockCommandExecution, mockCommandExecution]);
     });
@@ -334,7 +332,7 @@ describe('WorkbenchService', () => {
       commandExecutionProvider.getList.mockRejectedValueOnce(new InternalServerErrorException());
 
       try {
-        await service.listCommandExecutions(mockWorkbenchClientMetadata.databaseId);
+        await service.listCommandExecutions(mockWorkbenchClientMetadata);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(InternalServerErrorException);
@@ -345,7 +343,7 @@ describe('WorkbenchService', () => {
     it('should return full command executions', async () => {
       commandExecutionProvider.getOne.mockResolvedValueOnce(mockCommandExecution);
 
-      const result = await service.getCommandExecution(mockWorkbenchClientMetadata.databaseId, mockCommandExecution.id);
+      const result = await service.getCommandExecution(mockWorkbenchClientMetadata, mockCommandExecution.id);
 
       expect(result).toEqual(mockCommandExecution);
     });
@@ -353,7 +351,7 @@ describe('WorkbenchService', () => {
       commandExecutionProvider.getOne.mockRejectedValueOnce(new InternalServerErrorException());
 
       try {
-        await service.getCommandExecution(mockWorkbenchClientMetadata.databaseId, mockCommandExecution.id);
+        await service.getCommandExecution(mockWorkbenchClientMetadata, mockCommandExecution.id);
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(InternalServerErrorException);
@@ -365,7 +363,7 @@ describe('WorkbenchService', () => {
       commandExecutionProvider.delete.mockResolvedValueOnce('some response');
 
       const result = await service.deleteCommandExecution(
-        mockWorkbenchClientMetadata.databaseId,
+        mockWorkbenchClientMetadata,
         mockCommandExecution.id,
       );
 
@@ -377,7 +375,7 @@ describe('WorkbenchService', () => {
       commandExecutionProvider.deleteAll.mockResolvedValueOnce('some response');
 
       const result = await service.deleteCommandExecutions(
-        mockWorkbenchClientMetadata.databaseId,
+        mockWorkbenchClientMetadata,
       );
 
       expect(result).toEqual(undefined);

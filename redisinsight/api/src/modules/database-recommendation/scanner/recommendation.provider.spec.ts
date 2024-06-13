@@ -1,8 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { RecommendationProvider } from 'src/modules/database-recommendation/scanner/recommendation.provider';
 import { RECOMMENDATION_NAMES } from 'src/constants';
-import { DatabaseService } from 'src/modules/database/database.service';
-import { mockDatabaseService } from 'src/__mocks__';
 import {
   DefaultRecommendationStrategy,
   RedisVersionStrategy,
@@ -20,26 +18,18 @@ import {
 } from 'src/modules/database-recommendation/scanner/strategies';
 
 describe('RecommendationProvider', () => {
-  let databaseService: DatabaseService;
-
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    await Test.createTestingModule({
       providers: [
         RecommendationProvider,
-        {
-          provide: DatabaseService,
-          useFactory: mockDatabaseService,
-        },
       ],
     }).compile();
-
-    databaseService = module.get(DatabaseService);
   });
-  const service = new RecommendationProvider(databaseService);
+  const service = new RecommendationProvider();
 
   describe('getStrategy', () => {
     [
-      [RECOMMENDATION_NAMES.SEARCH_JSON, new SearchJSONStrategy(databaseService)],
+      [RECOMMENDATION_NAMES.SEARCH_JSON, new SearchJSONStrategy()],
       [RECOMMENDATION_NAMES.REDIS_VERSION, new RedisVersionStrategy()],
       [RECOMMENDATION_NAMES.BIG_SETS, new BigSetStrategy()],
       [RECOMMENDATION_NAMES.RTS, new RTSStrategy()],

@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { isNumber } from 'lodash'
 import { sessionStorageService } from 'uiSrc/services'
 import { BrowserStorageItem } from 'uiSrc/constants'
@@ -10,6 +10,7 @@ const { apiPort } = window.app?.config || { apiPort: process.env.RI_APP_PORT }
 const baseApiUrl = process.env.RI_BASE_API_URL
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isWebApp = process.env.RI_APP_TYPE === 'web'
+const hostedApiBaseUrl = process.env.RI_HOSTED_API_BASE_URL
 
 let apiPrefix = process.env.RI_API_PREFIX
 
@@ -21,8 +22,8 @@ export const getBaseUrl = () => (!isDevelopment && isWebApp
   ? `${window.location.origin}/${apiPrefix}/`
   : `${baseApiUrl}:${apiPort}/${apiPrefix}/`)
 
-const axiosInstance = axios.create({
-  baseURL: getBaseUrl(),
+const mutableAxiosInstance: AxiosInstance = axios.create({
+  baseURL: hostedApiBaseUrl || getBaseUrl(),
 })
 
 export const requestInterceptor = (config: InternalAxiosRequestConfig) => {
@@ -54,14 +55,14 @@ export const cloudAuthInterceptor = (error: AxiosError) => {
   return Promise.reject(error)
 }
 
-axiosInstance.interceptors.request.use(
+mutableAxiosInstance.interceptors.request.use(
   requestInterceptor,
   (error) => Promise.reject(error)
 )
 
-axiosInstance.interceptors.response.use(
+mutableAxiosInstance.interceptors.response.use(
   undefined,
   cloudAuthInterceptor
 )
 
-export default axiosInstance
+export default mutableAxiosInstance

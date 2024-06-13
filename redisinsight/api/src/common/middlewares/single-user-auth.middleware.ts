@@ -29,11 +29,12 @@ export class SingleUserAuthMiddleware implements NestMiddleware {
       }));
     }
 
-    // todo: pay attention on property name session vs sessionMetadata
-    req['session'] = <ISessionMetadata>Object.freeze(plainToClass(SessionMetadata, {
-      userId: DEFAULT_USER_ID,
-      sessionId: DEFAULT_SESSION_ID,
-    }));
+    res.locals.session = {
+      data: <ISessionMetadata>Object.freeze(plainToClass(SessionMetadata, {
+        userId: DEFAULT_USER_ID,
+        sessionId: DEFAULT_SESSION_ID,
+      })),
+    };
 
     next();
   }

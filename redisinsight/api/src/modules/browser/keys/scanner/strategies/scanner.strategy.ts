@@ -7,14 +7,9 @@ import {
   IScannerGetKeysArgs,
   IScannerNodeKeys,
 } from 'src/modules/browser/keys/scanner/scanner.interface';
-import { SettingsService } from 'src/modules/settings/settings.service';
 
 @Injectable()
 export abstract class ScannerStrategy implements IScannerStrategy {
-  constructor(
-    protected readonly settingsService: SettingsService,
-  ) {}
-
   abstract getKeys(client: RedisClient, args: IScannerGetKeysArgs): Promise<IScannerNodeKeys[]>;
 
   abstract getKeysInfo(

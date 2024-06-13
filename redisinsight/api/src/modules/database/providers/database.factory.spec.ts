@@ -20,6 +20,7 @@ import {
   mockRedisNoPermError,
   mockSentinelDatabaseWithTlsAuth,
   mockSentinelRedisClient,
+  mockSessionMetadata,
   mockStandaloneRedisClient,
 } from 'src/__mocks__';
 import { DatabaseFactory } from 'src/modules/database/providers/database.factory';
@@ -68,7 +69,7 @@ describe('DatabaseFactory', () => {
       mockRedisSentinelUtil.isSentinel.mockResolvedValue(false);
       mockRedisClusterUtil.isCluster.mockResolvedValue(false);
 
-      const result = await service.createDatabaseModel(mockDatabase);
+      const result = await service.createDatabaseModel(mockSessionMetadata, mockDatabase);
 
       expect(result).toEqual(mockDatabase);
     });
@@ -76,7 +77,7 @@ describe('DatabaseFactory', () => {
       mockRedisSentinelUtil.isSentinel.mockResolvedValue(true);
       mockRedisClusterUtil.isCluster.mockResolvedValue(false);
 
-      const result = await service.createDatabaseModel(mockSentinelDatabaseWithTlsAuth);
+      const result = await service.createDatabaseModel(mockSessionMetadata, mockSentinelDatabaseWithTlsAuth);
 
       expect(result).toEqual(mockSentinelDatabaseWithTlsAuth);
     });
@@ -84,7 +85,7 @@ describe('DatabaseFactory', () => {
       mockRedisSentinelUtil.isSentinel.mockResolvedValue(true);
       mockRedisClusterUtil.isCluster.mockResolvedValue(false);
       try {
-        await service.createDatabaseModel(mockDatabase);
+        await service.createDatabaseModel(mockSessionMetadata, mockDatabase);
         fail();
       } catch (e) {
         expect(e.message).toEqual(RedisErrorCodes.SentinelParamsRequired);
@@ -94,7 +95,7 @@ describe('DatabaseFactory', () => {
       mockRedisSentinelUtil.isSentinel.mockResolvedValue(false);
       mockRedisClusterUtil.isCluster.mockResolvedValue(true);
 
-      const result = await service.createDatabaseModel(mockClusterDatabaseWithTlsAuth);
+      const result = await service.createDatabaseModel(mockSessionMetadata, mockClusterDatabaseWithTlsAuth);
 
       expect(result).toEqual(mockClusterDatabaseWithTlsAuth);
     });
@@ -115,10 +116,14 @@ describe('DatabaseFactory', () => {
 
   describe('createClusterDatabaseModel', () => {
     it('should create cluster database model', async () => {
-      const result = await service.createClusterDatabaseModel({
-        ...mockClusterDatabaseWithTlsAuth,
-        connectionType: ConnectionType.STANDALONE,
-      }, mockStandaloneRedisClient);
+      const result = await service.createClusterDatabaseModel(
+        mockSessionMetadata,
+        {
+          ...mockClusterDatabaseWithTlsAuth,
+          connectionType: ConnectionType.STANDALONE,
+        },
+        mockStandaloneRedisClient,
+      );
 
       expect(result).toEqual(mockClusterDatabaseWithTlsAuth);
       expect(mockClusterRedisClient.disconnect).toHaveBeenCalled();
@@ -128,10 +133,14 @@ describe('DatabaseFactory', () => {
       mockRedisClusterUtil.discoverClusterNodes.mockRejectedValueOnce(mockRedisNoPermError);
 
       try {
-        await service.createClusterDatabaseModel({
-          ...mockSentinelDatabaseWithTlsAuth,
-          connectionType: ConnectionType.STANDALONE,
-        }, mockStandaloneRedisClient);
+        await service.createClusterDatabaseModel(
+          mockSessionMetadata,
+          {
+            ...mockSentinelDatabaseWithTlsAuth,
+            connectionType: ConnectionType.STANDALONE,
+          },
+          mockStandaloneRedisClient,
+        );
         fail();
       } catch (e) {
         // todo: returned BadRequest. why not Forbidden?
@@ -143,10 +152,14 @@ describe('DatabaseFactory', () => {
 
   describe('createSentinelDatabaseModel', () => {
     it('should create sentinel database model', async () => {
-      const result = await service.createSentinelDatabaseModel({
-        ...mockSentinelDatabaseWithTlsAuth,
-        connectionType: ConnectionType.STANDALONE,
-      }, mockStandaloneRedisClient);
+      const result = await service.createSentinelDatabaseModel(
+        mockSessionMetadata,
+        {
+          ...mockSentinelDatabaseWithTlsAuth,
+          connectionType: ConnectionType.STANDALONE,
+        },
+        mockStandaloneRedisClient,
+      );
 
       expect(result).toEqual(mockSentinelDatabaseWithTlsAuth);
       expect(mockSentinelRedisClient.disconnect).toHaveBeenCalled();
@@ -154,14 +167,18 @@ describe('DatabaseFactory', () => {
 
     it('should throw NotFound error if no such master group', async () => {
       try {
-        await service.createSentinelDatabaseModel({
-          ...mockSentinelDatabaseWithTlsAuth,
-          connectionType: ConnectionType.STANDALONE,
-          sentinelMaster: {
-            ...mockSentinelDatabaseWithTlsAuth.sentinelMaster,
-            name: 'not existing master group',
+        await service.createSentinelDatabaseModel(
+          mockSessionMetadata,
+          {
+            ...mockSentinelDatabaseWithTlsAuth,
+            connectionType: ConnectionType.STANDALONE,
+            sentinelMaster: {
+              ...mockSentinelDatabaseWithTlsAuth.sentinelMaster,
+              name: 'not existing master group',
+            },
           },
-        }, mockStandaloneRedisClient);
+          mockStandaloneRedisClient,
+        );
         fail();
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -173,14 +190,18 @@ describe('DatabaseFactory', () => {
       mockRedisSentinelUtil.discoverSentinelMasterGroups.mockRejectedValueOnce(mockRedisNoPermError);
 
       try {
-        await service.createSentinelDatabaseModel({
-          ...mockSentinelDatabaseWithTlsAuth,
-          connectionType: ConnectionType.STANDALONE,
-          sentinelMaster: {
-            ...mockSentinelDatabaseWithTlsAuth.sentinelMaster,
-            name: 'not existing master group',
+        await service.createSentinelDatabaseModel(
+          mockSessionMetadata,
+          {
+            ...mockSentinelDatabaseWithTlsAuth,
+            connectionType: ConnectionType.STANDALONE,
+            sentinelMaster: {
+              ...mockSentinelDatabaseWithTlsAuth.sentinelMaster,
+              name: 'not existing master group',
+            },
           },
-        }, mockStandaloneRedisClient);
+          mockStandaloneRedisClient,
+        );
         fail();
       } catch (e) {
         // todo: returned BadRequest. why not Forbidden?

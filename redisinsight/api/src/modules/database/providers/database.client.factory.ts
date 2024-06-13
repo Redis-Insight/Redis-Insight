@@ -51,15 +51,19 @@ export class DatabaseClientFactory {
    */
   async createClient(clientMetadata: ClientMetadata, options?: IRedisConnectionOptions): Promise<RedisClient> {
     this.logger.log('Creating new redis client.');
-    const database = await this.databaseService.get(clientMetadata.databaseId);
+    const database = await this.databaseService.get(clientMetadata.sessionMetadata, clientMetadata.databaseId);
 
     try {
       const client = await this.redisClientFactory.createClient(clientMetadata, database, options);
 
       if (database.connectionType === ConnectionType.NOT_CONNECTED) {
-        await this.repository.update(database.id, {
-          connectionType: client.getConnectionType() as unknown as ConnectionType,
-        });
+        await this.repository.update(
+          clientMetadata.sessionMetadata,
+          database.id,
+          {
+            connectionType: client.getConnectionType() as unknown as ConnectionType,
+          },
+        );
       }
 
       return client;

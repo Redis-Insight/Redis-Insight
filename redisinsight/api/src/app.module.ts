@@ -34,6 +34,7 @@ import { StaticsManagementModule } from './modules/statics-management/statics-ma
 import { ExcludeRouteMiddleware } from './middleware/exclude-route.middleware';
 import SubpathProxyMiddleware from './middleware/subpath-proxy.middleware';
 import { routes } from './app.routes';
+import { RedisConnectionMiddleware, redisConnectionControllers } from './middleware/redis-connection';
 
 const SERVER_CONFIG = config.get('server') as Config['server'];
 const PATH_CONFIG = config.get('dir_path') as Config['dir_path'];
@@ -47,7 +48,7 @@ const PATH_CONFIG = config.get('dir_path') as Config['dir_path'];
     RedisEnterpriseModule,
     CloudModule.register(),
     RedisSentinelModule,
-    BrowserModule,
+    BrowserModule.register(),
     CliModule,
     WorkbenchModule.register(),
     PluginModule,
@@ -55,7 +56,7 @@ const PATH_CONFIG = config.get('dir_path') as Config['dir_path'];
     ProfilerModule,
     PubSubModule,
     SlowLogModule,
-    NotificationModule,
+    NotificationModule.register(),
     BulkActionsModule,
     ClusterMonitorModule,
     CustomTutorialModule.register(),
@@ -93,7 +94,7 @@ const PATH_CONFIG = config.get('dir_path') as Config['dir_path'];
         fallthrough: false,
       },
     }),
-    StaticsManagementModule,
+    StaticsManagementModule.register(),
   ],
   controllers: [],
   providers: [],
@@ -128,5 +129,9 @@ export class AppModule implements OnModuleInit, NestModule {
       .forRoutes(
         ...SERVER_CONFIG.excludeRoutes,
       );
+
+    consumer
+      .apply(RedisConnectionMiddleware)
+      .forRoutes(...redisConnectionControllers);
   }
 }

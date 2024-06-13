@@ -1,9 +1,7 @@
 import {
-  DynamicModule, MiddlewareConsumer, Module, NestModule, Type,
+  DynamicModule, Module, Type,
 } from '@nestjs/common';
 import { WorkbenchController } from 'src/modules/workbench/workbench.controller';
-import { RedisConnectionMiddleware } from 'src/middleware/redis-connection.middleware';
-import { RouterModule } from '@nestjs/core';
 import { WorkbenchService } from 'src/modules/workbench/workbench.service';
 import { WorkbenchCommandsExecutor } from 'src/modules/workbench/providers/workbench-commands.executor';
 import { CommandExecutionRepository } from 'src/modules/workbench/repositories/command-execution.repository';
@@ -22,7 +20,7 @@ import { WorkbenchAnalyticsService } from './services/workbench-analytics/workbe
 const COMMANDS_CONFIGS = config.get('commands');
 
 @Module({})
-export class WorkbenchModule implements NestModule {
+export class WorkbenchModule {
   static register(
     commandExecutionRepository: Type<CommandExecutionRepository> = LocalCommandExecutionRepository,
     pluginStateRepository: Type<PluginStateRepository> = LocalPluginStateRepository,
@@ -58,12 +56,5 @@ export class WorkbenchModule implements NestModule {
         WorkbenchAnalyticsService,
       ],
     };
-  }
-
-  // todo: check if still needed
-  configure(consumer: MiddlewareConsumer): any {
-    consumer
-      .apply(RedisConnectionMiddleware)
-      .forRoutes(WorkbenchController);
   }
 }

@@ -56,7 +56,11 @@ export abstract class FeatureFlagStrategy {
 
     // determine agreements and settings
     try {
-      const appSettings = await this.settingsService.getAppSettings('1').catch(null);
+      // todo: [USER_CONTEXT] temporary workaround
+      const appSettings = await this.settingsService.getAppSettings({
+        userId: '1',
+        sessionId: '1',
+      }).catch(null);
 
       state.agreements = appSettings?.agreements;
       state.settings = appSettings;

@@ -15,6 +15,7 @@ import { AppModule } from './app.module';
 import SWAGGER_CONFIG from '../config/swagger';
 import LOGGER_CONFIG from '../config/logger';
 import { createHttpOptions } from './utils/createHttpOptions';
+import { SessionMetadataAdapter } from './modules/auth/session-metadata/adapters/session-metadata.adapter';
 
 const serverConfig = get('server') as Config['server'];
 
@@ -67,6 +68,8 @@ export default async function bootstrap(apiPort?: number): Promise<IApp> {
     app.setGlobalPrefix(serverConfig.globalPrefix);
     app.useWebSocketAdapter(new WindowsAuthAdapter(app));
   }
+
+  app.useWebSocketAdapter(new SessionMetadataAdapter(app));
 
   const logFileProvider = app.get(LogFileProvider);
 

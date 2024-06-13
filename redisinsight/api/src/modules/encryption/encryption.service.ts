@@ -8,6 +8,7 @@ import {
 } from 'src/modules/encryption/exceptions';
 import { SettingsService } from 'src/modules/settings/settings.service';
 import { KeyEncryptionStrategy } from 'src/modules/encryption/strategies/key-encryption.strategy';
+import { ConstantsProvider } from 'src/modules/constants/providers/constants.provider';
 
 @Injectable()
 export class EncryptionService {
@@ -16,6 +17,7 @@ export class EncryptionService {
     private readonly keytarEncryptionStrategy: KeytarEncryptionStrategy,
     private readonly plainEncryptionStrategy: PlainEncryptionStrategy,
     private readonly keyEncryptionStrategy: KeyEncryptionStrategy,
+    private readonly constantsProvider: ConstantsProvider,
   ) {}
 
   /**
@@ -44,7 +46,9 @@ export class EncryptionService {
    */
   async getEncryptionStrategy(): Promise<IEncryptionStrategy> {
     // todo: add encryption provider as a strategy to be configurable
-    const settings = await this.settingsService.getAppSettings('1');
+    const settings = await this.settingsService.getAppSettings(
+      this.constantsProvider.getSystemSessionMetadata(),
+    );
     switch (settings.agreements?.encryption) {
       case true:
         if (await this.keyEncryptionStrategy.isAvailable()) {

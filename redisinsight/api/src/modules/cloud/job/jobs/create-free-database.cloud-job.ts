@@ -114,19 +114,22 @@ export class CreateFreeDatabaseCloudJob extends CloudJob {
 
       const [host, port] = publicEndpoint.split(':');
 
-      const database = await this.dependencies.databaseService.create({
-        host,
-        port: parseInt(port, 10),
-        name,
-        nameFromProvider: name,
-        password,
-        provider: HostingProvider.RE_CLOUD,
-        cloudDetails: {
-          ...cloudDatabase?.cloudDetails,
-          free: true,
+      const database = await this.dependencies.databaseService.create(
+        this.options.sessionMetadata,
+        {
+          host,
+          port: parseInt(port, 10),
+          name,
+          nameFromProvider: name,
+          password,
+          provider: HostingProvider.RE_CLOUD,
+          cloudDetails: {
+            ...cloudDatabase?.cloudDetails,
+            free: true,
+          },
+          timeout: cloudConfig.cloudDatabaseConnectionTimeout,
         },
-        timeout: cloudConfig.cloudDatabaseConnectionTimeout,
-      });
+      );
 
       this.result = {
         resourceId: database.id,
