@@ -668,7 +668,7 @@ jobs:
             - release/*-linux.yml
   macosx:
     executor: macos
-    resource_class: macos.x86.medium.gen2
+    resource_class: macos.m1.medium.gen1
     parameters:
       env:
         description: Build environment (stage || prod)
