@@ -10,7 +10,8 @@ import {
   remarkLink,
   rehypeLinks,
   remarkImage,
-  remarkCode
+  remarkCode,
+  remarkSanitize,
 } from 'uiSrc/utils/formatters/markdown'
 import { IFormatter, IFormatterConfig } from './formatter.interfaces'
 
@@ -20,6 +21,7 @@ class MarkdownToJsxString implements IFormatter {
     return new Promise((resolve, reject) => {
       unified()
         .use(remarkParse)
+        .use(remarkSanitize)
         .use(remarkGfm) // support GitHub Flavored Markdown
         .use(remarkRedisUpload, path) // Add custom component for redis-upload code block
         .use(remarkCode, codeOptions) // Add custom component for Redis code block
