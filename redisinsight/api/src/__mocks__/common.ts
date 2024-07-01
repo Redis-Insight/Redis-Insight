@@ -58,6 +58,12 @@ export const mockSessionMetadata: SessionMetadata = {
   sessionId: uuidv4(),
 };
 
+export const mockClientMetadata: ClientMetadata = {
+  sessionMetadata: mockSessionMetadata,
+  databaseId: mockDatabase.id,
+  context: ClientContext.Common,
+};
+
 export const mockCliClientMetadata: ClientMetadata = {
   sessionMetadata: mockSessionMetadata,
   databaseId: mockDatabase.id,

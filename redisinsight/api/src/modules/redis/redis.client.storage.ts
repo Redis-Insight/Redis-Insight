@@ -87,14 +87,7 @@ export class RedisClientStorage {
    */
   public async set(client: RedisClient): Promise<RedisClient> {
     // Additional validation
-    if (
-      !client.clientMetadata.databaseId
-      || !client.clientMetadata.context
-      || !client.clientMetadata.sessionMetadata?.sessionId
-      || !client.clientMetadata.sessionMetadata.userId
-    ) {
-      throw new BadRequestException('Client metadata missed required properties');
-    }
+    ClientMetadata.validate(client.clientMetadata);
 
     const existingClient = this.clients.get(client.id);
 

@@ -80,6 +80,9 @@ export class RedisClientFactory implements OnModuleInit {
     database: Database,
     options: IRedisConnectionOptions = {},
   ): Promise<RedisClient> {
+    // Additional validation
+    ClientMetadata.validate(clientMetadata);
+
     const opts = RedisClientFactory.prepareConnectionOptions(options);
     const connectionStrategy = this.getConnectionStrategy(opts.clientLib);
 
@@ -114,6 +117,9 @@ export class RedisClientFactory implements OnModuleInit {
     db: Database,
     options: IRedisConnectionOptions = {},
   ): Promise<RedisClient> {
+    // Additional validation
+    ClientMetadata.validate(clientMetadata);
+
     const database = cloneClassInstance(db);
 
     Object.keys(database).forEach((key: string) => {

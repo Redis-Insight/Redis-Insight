@@ -8,7 +8,6 @@ import { mockSentinelMasterDto } from 'src/__mocks__/redis-sentinel';
 import { pick } from 'lodash';
 import { RedisDatabaseInfoResponse } from 'src/modules/database/dto/redis-info.dto';
 import { DatabaseOverview } from 'src/modules/database/models/database-overview';
-import { ClientContext, ClientMetadata } from 'src/common/models';
 import {
   mockSshOptionsBasic,
   mockSshOptionsBasicEntity,
@@ -204,12 +203,6 @@ export const mockNewDatabase = Object.assign(new Database(), {
   ...mockDatabase,
   new: true,
 });
-
-export const mockClientMetadata: ClientMetadata = {
-  sessionMetadata: undefined,
-  databaseId: mockDatabase.id,
-  context: ClientContext.Common,
-};
 
 export const mockDatabaseOverview: DatabaseOverview = {
   version: '6.2.4',

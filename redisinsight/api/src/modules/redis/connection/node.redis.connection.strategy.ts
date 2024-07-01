@@ -167,6 +167,9 @@ export class NodeRedisConnectionStrategy extends RedisConnectionStrategy {
   ): Promise<RedisClient> {
     this.logger.debug('Creating node-redis standalone client');
 
+    // Additional validation
+    ClientMetadata.validate(clientMetadata);
+
     let tnl: SshTunnel;
 
     try {
@@ -217,6 +220,9 @@ export class NodeRedisConnectionStrategy extends RedisConnectionStrategy {
     database: Database,
     options: IRedisConnectionOptions,
   ): Promise<RedisClient> {
+    // Additional validation
+    ClientMetadata.validate(clientMetadata);
+
     let tnls: SshTunnel[] = [];
     let standaloneClient: RedisClient;
 
@@ -292,6 +298,9 @@ export class NodeRedisConnectionStrategy extends RedisConnectionStrategy {
     database: Database,
     options: IRedisConnectionOptions,
   ): Promise<RedisClient> {
+    // Additional validation
+    ClientMetadata.validate(clientMetadata);
+
     // const config = await this.getRedisSentinelOptions(clientMetadata, database, options);
 
     throw new Error('TDB sentinel client');

@@ -35,7 +35,7 @@ export class DatabaseFactory {
     const client = await this.redisClientFactory.getConnectionStrategy().createStandaloneClient(
       {
         sessionMetadata,
-        databaseId: database.id,
+        databaseId: database.id || 'new', // we assume that if no database id defined we are in creation process
         context: ClientContext.Common,
       },
       database,
@@ -110,7 +110,7 @@ export class DatabaseFactory {
       const clusterClient = await this.redisClientFactory.getConnectionStrategy().createClusterClient(
         {
           sessionMetadata,
-          databaseId: model.id,
+          databaseId: model.id || 'new', // we assume that if no database id defined we are in creation process
           context: ClientContext.Common,
         },
         model,
@@ -157,7 +157,7 @@ export class DatabaseFactory {
       const sentinelClient = await this.redisClientFactory.getConnectionStrategy().createSentinelClient(
         {
           sessionMetadata,
-          databaseId: model.id,
+          databaseId: model.id || 'new', // we assume that if no database id defined we are in creation process
           context: ClientContext.Common,
         },
         model,
