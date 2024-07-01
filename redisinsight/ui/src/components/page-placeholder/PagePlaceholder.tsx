@@ -6,6 +6,7 @@ const PagePlaceholder = () => (
   <>
     { process.env.NODE_ENV !== 'development' && (
       <EuiEmptyPrompt
+        data-testid="page-placeholder"
         icon={<EuiLoadingLogo logo={LogoIcon} size="xl" style={{ fontSize: '40px' }} />}
         titleSize="s"
       />

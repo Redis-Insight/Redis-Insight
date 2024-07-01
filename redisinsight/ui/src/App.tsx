@@ -14,6 +14,7 @@ import MainComponent from './components/main/MainComponent'
 import ThemeComponent from './components/theme/ThemeComponent'
 import MonacoEnvironmentInitializer from './components/MonacoEnvironmentInitializer/MonacoEnvironmentInitializer'
 import GlobalDialogs from './components/global-dialogs'
+import Csrf from './components/csrf/Csrf'
 
 import themeDark from './styles/themes/dark_theme/darkTheme.scss?inline'
 import themeLight from './styles/themes/light_theme/lightTheme.scss?inline'
@@ -27,9 +28,11 @@ themeService.registerTheme(Theme.Light, themeLight)
 const AppWrapper = ({ children }: { children?: ReactElement[] }) => (
   <Provider store={store}>
     <ThemeProvider>
-      <App>
-        {children}
-      </App>
+      <Csrf>
+        <App>
+          {children}
+        </App>
+      </Csrf>
     </ThemeProvider>
   </Provider>
 )
