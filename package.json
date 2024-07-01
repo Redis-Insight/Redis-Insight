@@ -40,7 +40,7 @@
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.preload.dev.ts",
     "test": "jest ./redisinsight/ui -w 1",
     "test:watch": "jest ./redisinsight/ui --watch -w 1",
-    "test:cov": "cross-env NODE_OPTIONS='' jest ./redisinsight/ui --silent --coverage --no-cache --forceExit -w 3",
+    "test:cov": "cross-env NODE_OPTIONS='--experimental-vm-modules' jest ./redisinsight/ui --silent --coverage --no-cache --forceExit -w 3",
     "test:cov:unit": "jest ./redisinsight/ui --group=-component --coverage -w 1",
     "test:cov:component": "jest ./redisinsight/ui --group=component --coverage -w 1",
     "type-check:ui": "tsc --project redisinsight/ui --noEmit"
@@ -217,7 +217,7 @@
     "@reduxjs/toolkit": "^1.6.2",
     "@stablelib/snappy": "^1.0.2",
     "axios": "^1.6.0",
-    "brotli-unicode": "^1.0.2",
+    "brotli-wasm": "^3.0.1",
     "buffer": "^6.0.3",
     "classnames": "^2.3.1",
     "connection-string": "^4.3.2",

@@ -5,11 +5,13 @@ import { decompress as decompressFzstd } from 'fzstd'
 import { decompress as decompressLz4 } from 'lz4js'
 import { decompress as decompressSnappy } from '@stablelib/snappy'
 // @ts-ignore
-import { decompress as decompressBrotli } from 'brotli-unicode/js'
+import brotliPromise from 'brotli-wasm'
 import { inflate } from 'pako'
 import { COMPRESSOR_MAGIC_SYMBOLS, ICompressorMagicSymbols, KeyValueCompressor } from 'uiSrc/constants'
 import { RedisResponseBuffer, RedisString } from 'uiSrc/slices/interfaces'
 import { anyToBuffer, bufferToString, bufferToUint8Array, isEqualBuffers, Nullable } from 'uiSrc/utils'
+
+const brotli = await brotliPromise
 
 const decompressingBuffer = (
   reply: RedisResponseBuffer,
@@ -61,7 +63,7 @@ const decompressingBuffer = (
         }
       }
       case KeyValueCompressor.Brotli: {
-        const value = anyToBuffer(decompressBrotli(bufferToString(reply)))
+        const value = anyToBuffer(brotli.decompress(bufferToUint8Array(reply)))
 
         return {
           value,
