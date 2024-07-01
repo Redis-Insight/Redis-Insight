@@ -18,8 +18,8 @@ const mockRedisConfigResponse = ['name', '512'];
 const mockRedisClientsResponse1: string = '# Clients\r\nconnected_clients:100\r\n';
 const mockRedisClientsResponse2: string = '# Clients\r\nconnected_clients:101\r\n';
 
-const mockRedisServerResponse1: string = '# Server\r\nredis_version:6.0.0\r\n';
-const mockRedisServerResponse2: string = '# Server\r\nredis_version:5.1.1\r\n';
+const mockRedisServerResponse1: string = '# Server\r\nredis_version:7.4.0\r\n';
+const mockRedisServerResponse2: string = '# Server\r\nredis_version:6.0.0\r\n';
 
 const mockRedisAclListResponse1: string[] = [
   'user <pass off resetchannels -@all',
