@@ -117,7 +117,7 @@ const NavigationMenu = () => {
       pageName: PageNames.browser,
       isActivePage: isBrowserPath(activePage),
       ariaLabel: 'Browser page button',
-      onClick: () => handleGoPage(Pages.browser(connectedInstanceId)),
+      onClick: () => handleGoPage(Pages.keys(connectedInstanceId)),
       dataTestId: 'browser-page-btn',
       connectedInstanceId,
       getClassName() {
