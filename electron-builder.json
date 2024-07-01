@@ -52,10 +52,8 @@
     "asarUnpack": ["node_modules"],
     "provisioningProfile": "embedded.provisionprofile",
     "binaries": [
-      "Contents/Resources/app-x64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-arm64/node_sqlite3.node",
-      "Contents/Resources/app-x64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-x64/node_sqlite3.node",
-      "Contents/Resources/app-arm64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-arm64/node_sqlite3.node",
-      "Contents/Resources/app-arm64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-x64/node_sqlite3.node",
+      "Contents/Resources/app-x64.asar.unpacked/node_modules/sqlite3/build/Release/node_sqlite3.node",
+      "Contents/Resources/app-arm64.asar.unpacked/node_modules/sqlite3/build/Release/node_sqlite3.node",
       "Contents/Resources/app-arm64.asar.unpacked/node_modules/keytar/build/Release/keytar.node",
       "Contents/Resources/app-x64.asar.unpacked/node_modules/keytar/build/Release/keytar.node"
     ],
@@ -70,10 +68,8 @@
     "asarUnpack": ["node_modules"],
     "provisioningProfile": "dev.provisionprofile",
     "binaries": [
-      "Contents/Resources/app-x64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-arm64/node_sqlite3.node",
-      "Contents/Resources/app-x64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-x64/node_sqlite3.node",
-      "Contents/Resources/app-arm64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-arm64/node_sqlite3.node",
-      "Contents/Resources/app-arm64.asar.unpacked/node_modules/sqlite3/lib/binding/napi-v6-darwin-unknown-x64/node_sqlite3.node",
+      "Contents/Resources/app-x64.asar.unpacked/node_modules/sqlite3/build/Release/node_sqlite3.node",
+      "Contents/Resources/app-arm64.asar.unpacked/node_modules/sqlite3/build/Release/node_sqlite3.node",
       "Contents/Resources/app-arm64.asar.unpacked/node_modules/keytar/build/Release/keytar.node",
       "Contents/Resources/app-x64.asar.unpacked/node_modules/keytar/build/Release/keytar.node"
     ],

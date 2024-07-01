@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "keytar": "^7.9.0",
-    "sqlite3": "5.1.6",
+    "sqlite3": "5.1.7",
     "tunnel-ssh": "^5.1.2"
   }
 }
