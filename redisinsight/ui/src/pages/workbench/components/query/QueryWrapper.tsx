@@ -13,7 +13,6 @@ export interface Props {
   resultsMode?: ResultsMode
   setQuery: (script: string) => void
   setQueryEl: Function
-  setIsCodeBtnDisabled: (value: boolean) => void
   onKeyDown?: (e: React.KeyboardEvent, script: string) => void
   onSubmit: (value?: string) => void
   onQueryChangeMode: () => void
@@ -27,7 +26,6 @@ const QueryWrapper = (props: Props) => {
     resultsMode,
     setQuery,
     setQueryEl,
-    setIsCodeBtnDisabled,
     onKeyDown,
     onSubmit,
     onQueryChangeMode,
@@ -53,7 +51,6 @@ const QueryWrapper = (props: Props) => {
       resultsMode={resultsMode}
       setQuery={setQuery}
       setQueryEl={setQueryEl}
-      setIsCodeBtnDisabled={setIsCodeBtnDisabled}
       onKeyDown={onKeyDown}
       onSubmit={onSubmit}
       onQueryChangeMode={onQueryChangeMode}

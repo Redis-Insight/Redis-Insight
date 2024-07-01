@@ -2,7 +2,7 @@ import { DatabaseHelper } from '../../../../helpers/database';
 import {
     commonUrl, ossStandaloneConfigEmpty
 } from '../../../../helpers/conf';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { Common } from '../../../../helpers/common';
 import {
     MemoryEfficiencyPage,
@@ -132,7 +132,7 @@ test('Verify onboard new user skip tour', async(t) => {
     await onboardingCardsDialog.clickNextStep();
     // verify tree view step is visible
     await onboardingCardsDialog.verifyStepVisible('Tree view');
-    await t.click(browserPage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     await t.click(myRedisDatabasePage.NavigationPanel.helpCenterButton);
     await t.expect(myRedisDatabasePage.NavigationPanel.HelpCenter.helpCenterPanel.visible).ok('help center panel is not opened');
     await t.click(onboardingCardsDialog.resetOnboardingBtn);
@@ -158,7 +158,8 @@ test.requestHooks(logger)('Verify that the final onboarding step is closed when 
     // Verify last step of onboarding process is visible
     await onboardingCardsDialog.verifyStepVisible('Great job!');
     // Go to Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
 
     // Verify that “ONBOARDING_TOUR_FINISHED” event is sent when user opens another page (or close the app)
     await telemetry.verifyEventHasProperties(telemetryEvent, expectedProperties, logger);

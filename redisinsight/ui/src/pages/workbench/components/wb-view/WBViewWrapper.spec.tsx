@@ -10,8 +10,8 @@ import {
   screen,
   act,
 } from 'uiSrc/utils/test-utils'
-import QueryWrapper from 'uiSrc/components/query'
-import { Props as QueryProps } from 'uiSrc/components/query/QueryWrapper'
+import QueryWrapper from 'uiSrc/pages/workbench/components/query'
+import { Props as QueryProps } from 'uiSrc/pages/workbench/components/query/QueryWrapper'
 import { connectedInstanceSelector } from 'uiSrc/slices/instances/instances'
 import {
   clearWbResults,
@@ -30,7 +30,7 @@ beforeEach(() => {
   store.clearActions()
 })
 
-jest.mock('uiSrc/components/query', () => ({
+jest.mock('uiSrc/pages/workbench/components/query', () => ({
   __esModule: true,
   namedExport: jest.fn(),
   default: jest.fn(),

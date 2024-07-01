@@ -2,14 +2,12 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { compact, first } from 'lodash'
 import cx from 'classnames'
-import { EuiButtonIcon, EuiButton, EuiIcon, EuiLoadingSpinner, EuiText, EuiToolTip } from '@elastic/eui'
 import MonacoEditor, { monaco as monacoEditor } from 'react-monaco-editor'
 import { useParams } from 'react-router-dom'
 
 import {
   Theme,
   MonacoLanguage,
-  KEYBOARD_SHORTCUTS,
   DSLNaming,
 } from 'uiSrc/constants'
 import {
@@ -21,13 +19,11 @@ import {
   getMonacoAction,
   getRedisCompletionProvider,
   getRedisSignatureHelpProvider,
-  isGroupMode,
   isParamsLine,
   MonacoAction,
   Nullable,
   toModelDeltaDecoration
 } from 'uiSrc/utils'
-import { KeyboardShortcut } from 'uiSrc/components'
 import { ThemeContext } from 'uiSrc/contexts/themeContext'
 import { appRedisCommandsSelector } from 'uiSrc/slices/app/redis-commands'
 import { IEditorMount, ISnippetController } from 'uiSrc/pages/workbench/interfaces'
@@ -36,9 +32,9 @@ import { RunQueryMode, ResultsMode } from 'uiSrc/slices/interfaces/workbench'
 import { sendEventTelemetry, TelemetryEvent } from 'uiSrc/telemetry'
 import { stopProcessing, workbenchResultsSelector } from 'uiSrc/slices/workbench/wb-results'
 import DedicatedEditor from 'uiSrc/components/monaco-editor/components/dedicated-editor'
-import RawModeIcon from 'uiSrc/assets/img/icons/raw_mode.svg?react'
-import GroupModeIcon from 'uiSrc/assets/img/icons/group_mode.svg?react'
 
+import QueryActions from '../../query-actions'
+import QueryTutorials from '../../query-tutorials'
 import styles from './styles.module.scss'
 
 export interface Props {
@@ -47,7 +43,6 @@ export interface Props {
   resultsMode?: ResultsMode
   setQueryEl: Function
   setQuery: (script: string) => void
-  setIsCodeBtnDisabled: (value: boolean) => void
   onSubmit: (query?: string) => void
   onKeyDown?: (e: React.KeyboardEvent, script: string) => void
   onQueryChangeMode: () => void
@@ -73,7 +68,6 @@ const Query = (props: Props) => {
     onKeyDown = () => {},
     onSubmit = () => {},
     setQueryEl = () => {},
-    setIsCodeBtnDisabled = () => {},
     onQueryChangeMode = () => {},
     onChangeGroupMode = () => {}
   } = props
@@ -91,7 +85,6 @@ const Query = (props: Props) => {
   const { items: execHistoryItems, loading, processing } = useSelector(workbenchResultsSelector)
   const { theme } = useContext(ThemeContext)
   const monacoObjects = useRef<Nullable<IEditorMount>>(null)
-  const runTooltipRef = useRef<EuiToolTip>(null)
 
   const { instanceId = '' } = useParams<{ instanceId: string }>()
 
@@ -143,7 +136,6 @@ const Query = (props: Props) => {
   }, [query])
 
   useEffect(() => {
-    setIsCodeBtnDisabled(isDedicatedEditorOpen)
     isDedicatedEditorOpenRef.current = isDedicatedEditorOpen
   }, [isDedicatedEditorOpen])
 
@@ -475,80 +467,19 @@ const Query = (props: Props) => {
             editorDidMount={editorDidMount}
           />
         </div>
-        <div className={cx(styles.actions, { [styles.disabledActions]: isDedicatedEditorOpen })}>
-          <EuiToolTip
-            position="left"
-            content="Raw Mode"
-            data-testid="change-mode-tooltip"
-          >
-            <EuiButton
-              fill
-              size="s"
-              color="secondary"
-              onClick={() => onQueryChangeMode()}
-              disabled={isLoading}
-              className={cx(styles.textBtn, { [styles.activeBtn]: activeMode === RunQueryMode.Raw })}
-              data-testid="btn-change-mode"
-            >
-              <EuiIcon type={RawModeIcon} />
-            </EuiButton>
-          </EuiToolTip>
-          <EuiToolTip
-            ref={runTooltipRef}
-            position="left"
-            content={
-              isLoading
-                ? 'Please wait while the commands are being executed…'
-                : KEYBOARD_SHORTCUTS?.workbench?.runQuery && (
-                  <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                    <EuiText className={styles.tooltipText} size="s">{`${KEYBOARD_SHORTCUTS.workbench.runQuery?.label}:\u00A0\u00A0`}</EuiText>
-                    <KeyboardShortcut
-                      badgeTextClassName={styles.tooltipText}
-                      separator={KEYBOARD_SHORTCUTS?._separator}
-                      items={KEYBOARD_SHORTCUTS.workbench.runQuery.keys}
-                    />
-                  </div>
-                )
-            }
-            data-testid="run-query-tooltip"
-          >
-            <>
-              {isLoading && (
-                <EuiLoadingSpinner size="l" data-testid="loading-spinner" />
-              )}
-              <EuiButtonIcon
-                onClick={() => {
-                  handleSubmit()
-                  setTimeout(() => runTooltipRef?.current?.hideToolTip?.(), 0)
-                }}
-                disabled={isLoading}
-                iconType="playFilled"
-                className={cx(styles.submitButton, { [styles.submitButtonLoading]: isLoading })}
-                aria-label="submit"
-                data-testid="btn-submit"
-              />
-            </>
-          </EuiToolTip>
-          <EuiToolTip
-            position="left"
-            content="Group Results"
-            data-testid="run-query-tooltip"
-          >
-            <>
-              <EuiButton
-                fill
-                size="s"
-                color="secondary"
-                onClick={() => onChangeGroupMode()}
-                disabled={isLoading}
-                className={cx(styles.textBtn, { [styles.activeBtn]: isGroupMode(resultsMode) })}
-                data-testid="btn-change-group-mode"
-              >
-                <EuiIcon type={GroupModeIcon} />
-              </EuiButton>
-            </>
-          </EuiToolTip>
+        <div className={styles.queryFooter}>
+          <QueryTutorials />
+          <QueryActions
+            isDisabled={isDedicatedEditorOpen}
+            isLoading={isLoading}
+            activeMode={activeMode}
+            resultsMode={resultsMode}
+            onChangeGroupMode={onChangeGroupMode}
+            onChangeMode={onQueryChangeMode}
+            onSubmit={handleSubmit}
+          />
         </div>
+
       </div>
       {isDedicatedEditorOpen && (
         <DedicatedEditor

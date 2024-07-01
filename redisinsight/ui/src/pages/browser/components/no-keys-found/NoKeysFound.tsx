@@ -15,8 +15,10 @@ import { SidePanels } from 'uiSrc/slices/interfaces/insights'
 import { KeyViewType, SearchMode } from 'uiSrc/slices/interfaces/keys'
 import { changeKeyViewType, fetchKeys, keysSelector } from 'uiSrc/slices/browser/keys'
 import { SCAN_TREE_COUNT_DEFAULT } from 'uiSrc/constants/api'
-import { SAMPLE_DATA_TUTORIAL } from 'uiSrc/constants'
+import { TutorialsIds } from 'uiSrc/constants'
+
 import LoadSampleData from '../load-sample-data'
+
 import styles from './styles.module.scss'
 
 export interface Props {
@@ -33,7 +35,7 @@ const NoKeysFound = (props: Props) => {
 
   const onSuccessLoadData = () => {
     if (openedPanel !== SidePanels.AiAssistant) {
-      const tutorialPath = findTutorialPath({ id: SAMPLE_DATA_TUTORIAL })
+      const tutorialPath = findTutorialPath({ id: TutorialsIds.RedisUseCases })
       dispatch(openTutorialByPath(tutorialPath, history, true))
     }
 

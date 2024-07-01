@@ -31,4 +31,5 @@ export * from './customErrorCodes'
 export * from './securityField'
 export * from './redisearch'
 export * from './browser/keyDetailsHeader'
+export * from './tutorials'
 export { ApiEndpoints, BrowserStorageItem, ApiStatusCode, apiErrors }

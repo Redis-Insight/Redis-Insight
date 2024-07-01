@@ -1,0 +1,76 @@
+.wrapper {
+  position: relative;
+  height: 100%;
+
+  :global(.editorBounder) {
+    bottom: 6px;
+    left: 18px;
+    right: 46px;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px 16px;
+  width: 100%;
+  height: 100%;
+  word-break: break-word;
+  text-align: left;
+  letter-spacing: 0;
+  background-color: var(--rsInputWrapperColor);
+  color: var(--euiTextSubduedColor) !important;
+  border: 1px solid var(--euiColorLightShade);
+}
+
+.disabled {
+  opacity: 0.8;
+}
+
+.disabledActions {
+  pointer-events: none;
+  user-select: none;
+}
+
+.containerPlaceholder {
+  display: flex;
+  padding: 8px 16px 8px 16px;
+  width: 100%;
+  height: 100%;
+  background-color: var(--rsInputWrapperColor);
+  color: var(--euiTextSubduedColor) !important;
+  border: 1px solid var(--euiColorLightShade);
+  > div {
+    border: 1px solid var(--euiColorLightShade);
+    background-color: var(--euiColorEmptyShade);
+    padding: 8px 20px;
+    width: 100%;
+  }
+}
+
+.input {
+  overflow: hidden;
+  flex-grow: 1;
+  width: 100%;
+  border: 1px solid var(--euiColorLightShade);
+  background-color: var(--rsInputColor);
+}
+
+.queryFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+#script {
+  font: normal normal bold 14px/17px Inconsolata !important;
+  color: var(--textColorShade);
+  caret-color: var(--euiColorFullShade);
+  min-width: 5px;
+  display: inline;
+}
+

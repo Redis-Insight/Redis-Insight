@@ -166,6 +166,6 @@ describe('TopNamespace', () => {
 
     expect(store.getActions()).toEqual(expectedActions)
     expect(pushMock).toHaveBeenCalledTimes(1)
-    expect(pushMock).toHaveBeenCalledWith('/instanceId/browser')
+    expect(pushMock).toHaveBeenCalledWith('/instanceId/browser/browser')
   })
 })

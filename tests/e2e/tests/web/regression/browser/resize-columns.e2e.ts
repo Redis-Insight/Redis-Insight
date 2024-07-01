@@ -3,7 +3,7 @@ import {
     MyRedisDatabasePage,
     BrowserPage
 } from '../../../../pageObjects';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 import { Common } from '../../../../helpers/common';
@@ -80,8 +80,8 @@ test('Resize of columns in Hash, List, Zset Key details', async t => {
     }
 
     // Verify that resize saved when switching between pages
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
-    await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.BrowserAndFilter);
     await browserPage.openKeyDetails(keys[0].name);
     await t.expect(field.clientWidth).within(keys[0].fieldWidthEnd - 5, keys[0].fieldWidthEnd + 5, 'Resize context not saved for key when switching between pages');
 

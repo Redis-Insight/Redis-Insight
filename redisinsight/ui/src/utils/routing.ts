@@ -1,4 +1,4 @@
-import { IRoute } from 'uiSrc/constants'
+import { IRoute, Pages } from 'uiSrc/constants'
 import { Maybe, Nullable } from 'uiSrc/utils'
 import DEFAULT_ROUTES from 'uiSrc/components/main-router/constants/defaultRoutes'
 
@@ -41,6 +41,11 @@ export const getRedirectionPage = (
 
     if (searchParams.has('guidePath') || searchParams.has('tutorialId')) {
       page += '&insights=open'
+    }
+
+    // old page - temp redirection
+    if (page === 'workbench' && databaseId) {
+      return `${Pages.keys(databaseId)}/${page}`
     }
 
     const foundRoute = findRouteByPathname(DEFAULT_ROUTES, pathname)

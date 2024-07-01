@@ -15,6 +15,7 @@ import { guideLinksSelector } from 'uiSrc/slices/content/guide-links'
 import GUIDE_ICONS from 'uiSrc/components/explore-guides/icons'
 import { findTutorialPath } from 'uiSrc/utils'
 import { InsightsPanelTabs, SidePanels } from 'uiSrc/slices/interfaces/insights'
+import { TutorialsIds } from 'uiSrc/constants'
 import styles from './styles.module.scss'
 
 export interface Props {
@@ -23,7 +24,7 @@ export interface Props {
   capabilityIds?: string[]
 }
 
-const displayedCapabilityIds = ['sq-intro', 'ds-json-intro']
+const displayedCapabilityIds = [TutorialsIds.IntroToSearch, TutorialsIds.IntroToJSON]
 
 const CapabilityPromotion = (props: Props) => {
   const { mode = 'wide', wrapperClassName, capabilityIds = displayedCapabilityIds } = props

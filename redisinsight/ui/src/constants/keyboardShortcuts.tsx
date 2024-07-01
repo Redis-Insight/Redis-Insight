@@ -107,8 +107,8 @@ const MAC_SHORTCUTS = {
   },
   workbench: {
     runQuery: {
-      label: 'Run',
-      description: 'Run Command',
+      label: 'Run commands',
+      description: 'Run Commands',
       keys: [(<span className="cmdSymbol">⌘</span>), 'Enter'],
     },
     nextLine: {

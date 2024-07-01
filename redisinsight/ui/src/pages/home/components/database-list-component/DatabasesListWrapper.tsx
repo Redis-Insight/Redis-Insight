@@ -25,7 +25,7 @@ import CloudLinkIcon from 'uiSrc/assets/img/oauth/cloud_link.svg?react'
 import { ShowChildByCondition } from 'uiSrc/components'
 import DatabaseListModules from 'uiSrc/components/database-list-modules/DatabaseListModules'
 import ItemList from 'uiSrc/components/item-list'
-import { BrowserStorageItem, PageNames, Pages, Theme } from 'uiSrc/constants'
+import { BrowserStorageItem, Pages, Theme } from 'uiSrc/constants'
 import { EXTERNAL_LINKS } from 'uiSrc/constants/links'
 import { ThemeContext } from 'uiSrc/contexts/themeContext'
 import PopoverDelete from 'uiSrc/pages/browser/components/popover-delete/PopoverDelete'
@@ -63,7 +63,7 @@ const DatabasesListWrapper = ({ width, onEditInstance, editedInstance, onDeleteI
   const { search } = useLocation()
   const { theme } = useContext(ThemeContext)
 
-  const { contextInstanceId, lastPage } = useSelector(appContextSelector)
+  const { contextInstanceId } = useSelector(appContextSelector)
   const instances = useSelector(instancesSelector)
   const [, forceRerender] = useState({})
 
@@ -125,11 +125,7 @@ const DatabasesListWrapper = ({ width, onEditInstance, editedInstance, onDeleteI
     }
     dispatch(setConnectedInstanceId(id))
 
-    if (lastPage === PageNames.workbench && contextInstanceId === id) {
-      history.push(Pages.workbench(id))
-      return
-    }
-    history.push(Pages.browser(id))
+    history.push(Pages.keys(id))
   }
   const handleCheckConnectToInstance = (
     event: React.MouseEvent | React.KeyboardEvent,

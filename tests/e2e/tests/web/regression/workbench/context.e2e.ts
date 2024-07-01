@@ -1,4 +1,4 @@
-import { ExploreTabs, rte } from '../../../../helpers/constants';
+import { ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
 import { BrowserPage, MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
@@ -18,7 +18,7 @@ fixture `Workbench Context`
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneConfig);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async() => {
         // Delete database
@@ -29,7 +29,7 @@ test('Verify that user can see saved CLI state when navigates away to any other 
     await t.click(workbenchPage.Cli.cliExpandButton);
     await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
     // Return back to Workbench and check CLI
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     await t.expect(workbenchPage.Cli.cliCollapseButton.exists).ok('CLI is not expanded');
 });
 // Update after resolving https://redislabs.atlassian.net/browse/RI-3299
@@ -55,7 +55,7 @@ test('Verify that user can see all the information removed when reloads the page
     await t.click(workbenchPage.Cli.cliExpandButton);
     await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
     // Open Workbench page and verify context
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     await t.expect(workbenchPage.Cli.cliCollapseButton.exists).ok('CLI is not expanded');
     await t.expect(workbenchPage.queryInputScriptArea.textContent).eql(command, 'Input in Editor is not saved');
     // Reload the window and chek context

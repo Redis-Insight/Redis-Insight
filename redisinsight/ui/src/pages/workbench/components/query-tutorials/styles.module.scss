@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  align-items: center;
+
+  .title {
+    margin-right: 8px;
+  }
+
+  .tutorialLink {
+    padding: 4px 8px;
+
+    background-color: var(--browserTableRowEven);
+
+    border-radius: 4px;
+    border: 1px solid var(--separatorColor);
+
+    color: var(--htmlColor) !important;
+    text-decoration: none !important;
+    font-size: 12px;
+
+    &:not(:first-of-type) {
+      margin-left: 8px;
+    }
+
+    &:global(.euiLink) {
+      &:hover, &:focus {
+        color: var(--htmlColor);
+        text-decoration: underline !important;
+        outline: none !important;
+        animation: none !important;
+      }
+    }
+  }
+}
+
+@include global.insights-open(1280px) {
+  .title {
+    display: none
+  }
+}
+
+@include global.insights-open(1024px) {
+  .tutorialLink:last-of-type {
+    display: none;
+  }
+}
+
+

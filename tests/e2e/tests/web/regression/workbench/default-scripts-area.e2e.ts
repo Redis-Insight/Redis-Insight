@@ -1,4 +1,4 @@
-import { ExploreTabs, rte } from '../../../../helpers/constants';
+import { ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
 import { BrowserPage, MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
@@ -16,7 +16,7 @@ fixture `Default scripts area at Workbench`
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneConfig);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async() => {
         // Delete database
@@ -70,7 +70,7 @@ test('Verify that user can see saved article in Enablement area when he leaves W
     // Go to Browser page
     await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
     // Go back to Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     // Verify that the same article is opened in Enablement area
     selector = tutorials.getRunSelector('Create a hash');
     await t.expect(selector.visible).ok('The end of the page is not visible');

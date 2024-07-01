@@ -1,0 +1,44 @@
+.tabs {
+  margin: 0 16px 16px;
+  background: var(--euiColorEmptyShade);
+
+  .tab {
+    padding: 8px 16px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    color: var(--euiTextSubduedColor) !important;
+    border-right: 1px solid var(--separatorColor);
+
+    &:hover {
+      background: var(--tableLightBorderColor);
+    }
+
+    &:global(.euiTab-isSelected) {
+      color: var(--euiTextColor) !important;
+      background: var(--insightsTriggerBgColor) !important;
+    }
+
+    &:after {
+      display: none !important;
+    }
+  }
+
+  .betaLabel {
+    margin-left: 12px;
+    font-size: 8px !important;
+    line-height: 12px !important;
+    background-color: var(--recommendationLiveBorderColor) !important;
+    border: 1px solid var(--triggerIconActiveColor) !important;
+    color: #FFF7EA !important;
+    border-radius: 2px !important;
+    padding: 0 3px !important;
+    margin-bottom: 2px;
+
+    transition: transform 250ms ease-in-out;
+    pointer-events: none;
+
+    :global(.euiBadge__content) {
+      min-height: 12px !important;
+    }
+  }
+}

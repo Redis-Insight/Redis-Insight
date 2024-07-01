@@ -1,11 +1,11 @@
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
-import { MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
+import { BrowserPage, WorkbenchPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneRedisearch } from '../../../../helpers/conf';
 import { Common } from '../../../../helpers/common';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 
-const myRedisDatabasePage = new MyRedisDatabasePage();
+const browserPage = new BrowserPage();
 const workbenchPage = new WorkbenchPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
@@ -18,7 +18,7 @@ fixture `JSON verifications at Workbench`
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneRedisearch);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async t => {
         // Clear and delete database

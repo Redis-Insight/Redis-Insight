@@ -1,5 +1,5 @@
 import { Selector, t } from 'testcafe';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
 import { BrowserPage, MyRedisDatabasePage } from '../../../../pageObjects';
 import {
@@ -108,9 +108,9 @@ test
         await browserActions.verifyAllRenderedKeysHasText();
 
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
         // Go to Browser Page
-        await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.BrowserAndFilter);
         // Verify that keys info in row not empty after switching between pages
         await browserActions.verifyAllRenderedKeysHasText();
     });

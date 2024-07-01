@@ -4,7 +4,7 @@ import {
     WorkbenchPage,
     BrowserPage
 } from '../../../../pageObjects';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 
@@ -41,6 +41,6 @@ test('Verify that user can see DB name, endpoint, connection type, Redis version
     // Verify that user can see an (i) icon next to the database name on Browser and Workbench pages
     await t.expect(browserPage.OverviewPanel.databaseInfoIcon.visible).ok('User can not see (i) icon on Browser page', { timeout: 10000 });
     // Move to the Workbench page and check icon
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     await t.expect(workbenchPage.OverviewPanel.overviewTotalMemory.visible).ok('User can not see (i) icon on Workbench page', { timeout: 10000 });
 });

@@ -9,7 +9,6 @@ import {
   setBrowserBulkActionOpen,
   setBrowserPanelSizes,
   setBrowserSelectedKey,
-  setLastPageContext
 } from 'uiSrc/slices/app/context'
 import BrowserPage from './BrowserPage'
 import KeyList, { Props as KeyListProps } from './components/key-list/KeyList'
@@ -161,7 +160,6 @@ describe('BrowserPage', () => {
       setBrowserPanelSizes(expect.any(Object)),
       setBrowserBulkActionOpen(expect.any(Boolean)),
       setBrowserSelectedKey(null),
-      setLastPageContext('browser'),
       toggleBrowserFullScreen(false)
     ]
 

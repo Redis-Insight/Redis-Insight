@@ -1,11 +1,11 @@
 import { t } from 'testcafe';
 import { DatabaseHelper } from '../../../../helpers/database';
-import { WorkbenchPage, MyRedisDatabasePage } from '../../../../pageObjects';
+import { WorkbenchPage, BrowserPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
-import { ExploreTabs, rte } from '../../../../helpers/constants';
+import { ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 
-const myRedisDatabasePage = new MyRedisDatabasePage();
+const browserPage = new BrowserPage();
 const workbenchPage = new WorkbenchPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
@@ -17,7 +17,7 @@ fixture `Redis Stack command in Workbench`
     .page(commonUrl)
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneConfig);
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async() => {
         // Drop key and database

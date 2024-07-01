@@ -1,6 +1,6 @@
-import { ExploreTabs, rte } from '../../../../helpers/constants';
+import { ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
-import { MyRedisDatabasePage, WorkbenchPage, SettingsPage } from '../../../../pageObjects';
+import { MyRedisDatabasePage, WorkbenchPage, SettingsPage, BrowserPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 import { Common } from '../../../../helpers/common';
@@ -10,6 +10,7 @@ const workbenchPage = new WorkbenchPage();
 const settingsPage = new SettingsPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
+const browserPage = new BrowserPage();
 
 const indexName = Common.generateWord(5);
 let keyName = Common.generateWord(5);
@@ -20,7 +21,7 @@ fixture `Scripting area at Workbench`
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneConfig);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async() => {
         // Clear and delete database
@@ -41,7 +42,8 @@ test('Verify that user can run multiple commands written in multiple lines in Wo
     await t.click(settingsPage.accordionWorkbenchSettings);
     await settingsPage.changeCommandsInPipeline('1');
     // Go to Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await t.click(settingsPage.NavigationPanel.browserButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     // Send commands in multiple lines
     await workbenchPage.sendCommandInWorkbench(commandsForSend.join('\n'), 0.5);
     // Check the result
@@ -68,7 +70,8 @@ test
         await t.click(settingsPage.accordionWorkbenchSettings);
         await settingsPage.changeCommandsInPipeline('1');
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await t.click(settingsPage.NavigationPanel.browserButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
         // Send commands in multiple lines with double slashes (//) wrapped in double quotes
         await workbenchPage.sendCommandInWorkbench(commandsForSend.join('\n"//"'), 0.5);
         // Check that all commands are executed

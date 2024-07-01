@@ -1,7 +1,7 @@
 import { DatabaseHelper } from '../../../../helpers/database';
 import { WorkbenchPage, MyRedisDatabasePage, BrowserPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 
 const browserPage = new BrowserPage();
@@ -22,7 +22,8 @@ fixture `Promote workbench in CLI`
     });
 test('Verify that user can see saved workbench context after redirection from CLI to workbench', async t => {
     // Open Workbench
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     const command = 'INFO';
     await t.typeText(workbenchPage.queryInput, command, { replace: true, speed: 1, paste: true });
     await t.click(myRedisDatabasePage.NavigationPanel.browserButton);

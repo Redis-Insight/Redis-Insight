@@ -1,6 +1,6 @@
 import { DatabaseHelper } from '../../../../helpers/database';
-import { WorkbenchPage, MyRedisDatabasePage, SettingsPage } from '../../../../pageObjects';
-import { rte } from '../../../../helpers/constants';
+import { WorkbenchPage, MyRedisDatabasePage, SettingsPage, BrowserPage } from '../../../../pageObjects';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 
@@ -9,6 +9,7 @@ const workbenchPage = new WorkbenchPage();
 const settingsPage = new SettingsPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
+const browserPage = new BrowserPage();
 
 const commandToSend = 'info server';
 const databasesForAdding = [
@@ -35,7 +36,8 @@ test('Disabled Editor Cleanup toggle behavior', async t => {
     // Verify that user can see text "Clear the Editor after running commands" for Editor Cleanup In Settings
     await t.expect(settingsPage.switchEditorCleanupOption.sibling(0).withExactText('Clear the Editor after running commands').visible).ok('Cleanup text is not correct');
     // Go to Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await t.click(settingsPage.NavigationPanel.browserButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     // Send commands
     await workbenchPage.sendCommandInWorkbench(commandToSend);
     await workbenchPage.sendCommandInWorkbench(commandToSend);
@@ -44,7 +46,7 @@ test('Disabled Editor Cleanup toggle behavior', async t => {
 });
 test('Enabled Editor Cleanup toggle behavior', async t => {
     // Go to Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     // Send commands
     await workbenchPage.sendCommandInWorkbench(commandToSend);
     await workbenchPage.sendCommandInWorkbench(commandToSend);

@@ -1,5 +1,5 @@
 import { DatabaseHelper } from '../../../../helpers/database';
-import { KeyTypesTexts, rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, KeyTypesTexts, rte } from '../../../../helpers/constants';
 import { Common } from '../../../../helpers/common';
 import {
     MyRedisDatabasePage,
@@ -105,7 +105,7 @@ test('Switching between indexed databases', async t => {
     await verifySearchFilterValue('Hall School');
 
     // Open Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     await workbenchPage.sendCommandInWorkbench(command);
     // Verify that user can see the database index before the command name executed in Workbench
     await workbenchPage.checkWorkbenchCommandResult(`[db1] ${command}`, '8');

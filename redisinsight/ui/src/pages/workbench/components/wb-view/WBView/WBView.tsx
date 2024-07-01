@@ -1,10 +1,9 @@
-import React, { Ref, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Ref, useCallback, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import cx from 'classnames'
 import { isEmpty } from 'lodash'
 import { useParams } from 'react-router-dom'
 import { EuiResizableContainer } from '@elastic/eui'
-import { monaco as monacoEditor } from 'react-monaco-editor'
 
 import {
   Maybe,
@@ -12,7 +11,6 @@ import {
   getParsedParamsInQuery,
   getCommandsFromQuery
 } from 'uiSrc/utils'
-import QueryWrapper from 'uiSrc/components/query'
 import {
   setWorkbenchVerticalPanelSizes,
   appContextWorkbench,
@@ -25,7 +23,10 @@ import { appRedisCommandsSelector } from 'uiSrc/slices/app/redis-commands'
 import { userSettingsConfigSelector } from 'uiSrc/slices/user/user-settings'
 import { PIPELINE_COUNT_DEFAULT } from 'uiSrc/constants/api'
 import { CodeButtonParams } from 'uiSrc/constants'
+
+import QueryWrapper from '../../query'
 import WBResultsWrapper from '../../wb-results'
+
 import styles from './styles.module.scss'
 
 const verticalPanelIds = {
@@ -41,7 +42,6 @@ export interface Props {
   isResultsLoaded: boolean
   setScript: (script: string) => void
   setScriptEl: Function
-  scriptEl: Nullable<monacoEditor.editor.IStandaloneCodeEditor>
   scrollDivRef: Ref<HTMLDivElement>
   activeMode: RunQueryMode
   resultsMode: ResultsMode
@@ -71,7 +71,6 @@ const WBView = (props: Props) => {
     processing,
     setScript,
     setScriptEl,
-    scriptEl,
     activeMode,
     resultsMode,
     isResultsLoaded,
@@ -93,8 +92,6 @@ const WBView = (props: Props) => {
   const { panelSizes: { vertical } } = useSelector(appContextWorkbench)
   const { commandsArray: REDIS_COMMANDS_ARRAY } = useSelector(appRedisCommandsSelector)
   const { batchSize = PIPELINE_COUNT_DEFAULT } = useSelector(userSettingsConfigSelector) ?? {}
-
-  const [isCodeBtnDisabled, setIsCodeBtnDisabled] = useState<boolean>(false)
 
   const verticalSizesRef = useRef(vertical)
 
@@ -178,7 +175,7 @@ const WBView = (props: Props) => {
                   scrollable={false}
                   className={styles.queryPanel}
                   initialSize={vertical[verticalPanelIds.firstPanelId] ?? 20}
-                  style={{ minHeight: '140px', zIndex: '8' }}
+                  style={{ minHeight: '240px', zIndex: '8' }}
                 >
                   <QueryWrapper
                     query={script}
@@ -186,7 +183,6 @@ const WBView = (props: Props) => {
                     resultsMode={resultsMode}
                     setQuery={setScript}
                     setQueryEl={setScriptEl}
-                    setIsCodeBtnDisabled={setIsCodeBtnDisabled}
                     onSubmit={handleSubmit}
                     onQueryChangeMode={onQueryChangeMode}
                     onChangeGroupMode={onChangeGroupMode}
@@ -206,7 +202,7 @@ const WBView = (props: Props) => {
                   initialSize={vertical[verticalPanelIds.secondPanelId] ?? 80}
                   className={cx(styles.queryResults, styles.queryResultsPanel)}
                     // Fix scroll on low height - 140px (queryPanel)
-                  style={{ maxHeight: 'calc(100% - 140px)' }}
+                  style={{ maxHeight: 'calc(100% - 240px)' }}
                 >
                   <WBResultsWrapper
                     items={items}

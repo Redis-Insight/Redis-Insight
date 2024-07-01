@@ -18,7 +18,7 @@ import { useHistory } from 'react-router'
 import { BuildType } from 'uiSrc/constants/env'
 import { appInfoSelector } from 'uiSrc/slices/app/info'
 import { Nullable, getDbIndex } from 'uiSrc/utils'
-import { PageNames, Pages, Theme } from 'uiSrc/constants'
+import { Pages, Theme } from 'uiSrc/constants'
 import { ThemeContext } from 'uiSrc/contexts/themeContext'
 import InlineItemEditor from 'uiSrc/components/inline-item-editor/InlineItemEditor'
 import RediStackDarkMin from 'uiSrc/assets/img/modules/redistack/RediStackDark-min.svg'
@@ -65,7 +65,7 @@ const DatabaseAlias = (props: Props) => {
   } = props
 
   const { server } = useSelector(appInfoSelector)
-  const { contextInstanceId, lastPage } = useSelector(appContextSelector)
+  const { contextInstanceId } = useSelector(appContextSelector)
 
   const [isEditing, setIsEditing] = useState(false)
   const [value, setValue] = useState(alias)
@@ -95,12 +95,7 @@ const DatabaseAlias = (props: Props) => {
       dispatch(setAppContextInitialState())
     }
     dispatch(setConnectedInstanceId(id ?? ''))
-
-    if (lastPage === PageNames.workbench && contextInstanceId === id) {
-      history.push(Pages.workbench(id))
-      return
-    }
-    history.push(Pages.browser(id ?? ''))
+    history.push(Pages.keys(id ?? ''))
   }
 
   const handleOpen = (event: any) => {

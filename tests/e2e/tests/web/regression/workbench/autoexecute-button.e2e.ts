@@ -1,20 +1,20 @@
 import { DatabaseHelper } from '../../../../helpers/database';
-import { WorkbenchPage, MyRedisDatabasePage } from '../../../../pageObjects';
-import { ExploreTabs, rte } from '../../../../helpers/constants';
+import { WorkbenchPage, BrowserPage } from '../../../../pageObjects';
+import { ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 
-const myRedisDatabasePage = new MyRedisDatabasePage();
 const workbenchPage = new WorkbenchPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
+const browserPage = new BrowserPage();
 
 fixture `Workbench Auto-Execute button`
     .meta({ type: 'regression', rte: rte.standalone })
     .page(commonUrl)
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneConfig);
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async() => {
         // Clear and delete database

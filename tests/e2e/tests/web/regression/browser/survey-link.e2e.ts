@@ -1,5 +1,5 @@
 import { DatabaseHelper } from '../../../../helpers/database';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { BrowserPage, MyRedisDatabasePage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
@@ -32,7 +32,7 @@ test('Verify that user can use survey link', async t => {
     // await Common.checkURL(externalPageLink);
     // await goBackHistory();
     // Workbench page
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     await t.expect(browserPage.userSurveyLink.visible).ok('Survey Link is not displayed');
     // Slow Log page
     await t.click(myRedisDatabasePage.NavigationPanel.analysisPageButton);

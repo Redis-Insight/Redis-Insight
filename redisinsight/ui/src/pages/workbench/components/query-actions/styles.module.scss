@@ -1,0 +1,82 @@
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .btn {
+    height: 24px !important;
+    min-width: auto !important;
+    min-height: auto !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    color: var(--euiTextColor) !important;
+    border: 1px solid transparent !important;
+
+    :global(.euiButton__content) {
+      padding: 0 6px;
+    }
+
+    :global(.euiButton__text) {
+      color: var(--euiTextColor) !important;
+      font: normal normal 400 14px/17px Graphik, sans-serif !important
+    }
+
+    &:focus, &:active {
+      outline: 0 !important;
+    }
+
+    svg {
+      margin-top: 1px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .textBtn {
+    margin: 0 8px;
+
+    svg path {
+      fill: var(--euiTextSubduedColor) !important;
+    }
+
+    &.activeBtn {
+      background: var(--browserComponentActive) !important;
+      border: 1px solid var(--euiColorPrimary) !important;
+    }
+  }
+
+  .submitButton {
+    margin-left: 8px;
+
+    svg {
+      color: var(--rsSubmitBtn) !important;
+    }
+
+    :global(.euiLoadingSpinner) {
+      width: 14px;
+      height: 14px;
+      color: var(--rsSubmitBtn) !important;
+    }
+  }
+
+  .divider {
+    height: 20px;
+    margin-left: 8px;
+  }
+
+  .tooltipText {
+    font-size: 12px !important;
+  }
+}
+
+@include global.insights-open(1220px) {
+  .actions {
+    .btn {
+      :global(.euiButton__text) {
+        display: none;
+      }
+    }
+  }
+}

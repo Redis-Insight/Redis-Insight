@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
 import { DatabaseHelper } from '../../../../helpers/database';
-import { ExploreTabs, rte } from '../../../../helpers/constants';
+import { ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { Common } from '../../../../helpers/common';
 import {
     MyRedisDatabasePage,
@@ -145,7 +145,8 @@ test
     })
     .after(async t => {
         //Delete database and index
-        await t.click(browserPage.NavigationPanel.workbenchButton);
+        await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
         await workbenchPage.sendCommandInWorkbench('FT.DROPINDEX idx:schools DD');
         await databaseAPIRequests.deleteStandaloneDatabaseApi(ossStandaloneBigConfig);
     })('Verify that user can see additional information in Overview: Connected Clients, Commands/Sec, CPU (%) using Standalone DB connection type', async t => {

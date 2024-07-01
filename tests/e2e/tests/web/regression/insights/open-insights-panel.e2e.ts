@@ -1,5 +1,5 @@
 import { BrowserPage, MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
-import { Compatibility, ExploreTabs, rte } from '../../../../helpers/constants';
+import { Compatibility, ExploreTabs, KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
 import {
     commonUrl,
@@ -47,7 +47,7 @@ test
 
         await t.click(browserPage.NavigationPanel.myRedisDBButton);
         await myRedisDatabasePage.clickOnDBByName(ossStandaloneV5Config.databaseName);
-        await t.click(browserPage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
         await workbenchPage.sendCommandInWorkbench('TS.');
 
         await t.click(browserPage.NavigationPanel.myRedisDBButton);

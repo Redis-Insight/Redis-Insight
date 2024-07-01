@@ -13,7 +13,7 @@ import {
   EuiToolTip
 } from '@elastic/eui'
 import HighlightedFeature, { Props as HighlightedFeatureProps } from 'uiSrc/components/hightlighted-feature/HighlightedFeature'
-import { ANALYTICS_ROUTES } from 'uiSrc/components/main-router/constants/sub-routes'
+import { ANALYTICS_ROUTES, BROWSER_ROUTES } from 'uiSrc/components/main-router/constants/sub-routes'
 
 import { PageNames, Pages } from 'uiSrc/constants'
 import { EXTERNAL_LINKS } from 'uiSrc/constants/links'
@@ -29,8 +29,6 @@ import SettingsSVG from 'uiSrc/assets/img/sidebar/settings.svg'
 import SettingsActiveSVG from 'uiSrc/assets/img/sidebar/settings_active.svg'
 import BrowserSVG from 'uiSrc/assets/img/sidebar/browser.svg'
 import BrowserActiveSVG from 'uiSrc/assets/img/sidebar/browser_active.svg'
-import WorkbenchSVG from 'uiSrc/assets/img/sidebar/workbench.svg'
-import WorkbenchActiveSVG from 'uiSrc/assets/img/sidebar/workbench_active.svg'
 import SlowLogSVG from 'uiSrc/assets/img/sidebar/slowlog.svg'
 import SlowLogActiveSVG from 'uiSrc/assets/img/sidebar/slowlog_active.svg'
 import PubSubSVG from 'uiSrc/assets/img/sidebar/pubsub.svg'
@@ -53,8 +51,6 @@ import NotificationMenu from './components/notifications-center'
 
 import styles from './styles.module.scss'
 
-const workbenchPath = `/${PageNames.workbench}`
-const browserPath = `/${PageNames.browser}`
 const pubSubPath = `/${PageNames.pubSub}`
 
 interface INavigations {
@@ -96,6 +92,10 @@ const NavigationMenu = () => {
     ({ path }) => (`/${last(path.split('/'))}` === activePage)
   )
 
+  const isBrowserPath = (activePage: string) => !!BROWSER_ROUTES.find(
+    ({ path }) => (`/${last(path.split('/'))}` === activePage)
+  )
+
   const isPipelineManagementPath = () =>
     location.pathname?.startsWith(Pages.rdiPipelineManagement(connectedRdiInstanceId))
 
@@ -115,7 +115,7 @@ const NavigationMenu = () => {
     {
       tooltipText: 'Browser',
       pageName: PageNames.browser,
-      isActivePage: activePage === browserPath,
+      isActivePage: isBrowserPath(activePage),
       ariaLabel: 'Browser page button',
       onClick: () => handleGoPage(Pages.browser(connectedInstanceId)),
       dataTestId: 'browser-page-btn',
@@ -126,23 +126,6 @@ const NavigationMenu = () => {
       getIconType() {
         return this.isActivePage ? BrowserSVG : BrowserActiveSVG
       },
-      onboard: ONBOARDING_FEATURES.BROWSER_PAGE
-    },
-    {
-      tooltipText: 'Workbench',
-      pageName: PageNames.workbench,
-      ariaLabel: 'Workbench page button',
-      onClick: () => handleGoPage(Pages.workbench(connectedInstanceId)),
-      dataTestId: 'workbench-page-btn',
-      connectedInstanceId,
-      isActivePage: activePage === workbenchPath,
-      getClassName() {
-        return cx(styles.navigationButton, { [styles.active]: this.isActivePage })
-      },
-      getIconType() {
-        return this.isActivePage ? WorkbenchSVG : WorkbenchActiveSVG
-      },
-      onboard: ONBOARDING_FEATURES.WORKBENCH_PAGE
     },
     {
       tooltipText: 'Analysis Tools',

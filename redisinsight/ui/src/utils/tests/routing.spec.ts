@@ -14,8 +14,10 @@ Object.defineProperty(window, 'location', {
 const databaseId = '1'
 const getRedirectionPageTests = [
   { input: ['settings'], expected: '/settings' },
-  { input: ['workbench', databaseId], expected: '/1/workbench' },
-  { input: ['/workbench', databaseId], expected: '/1/workbench' },
+  { input: ['workbench', databaseId], expected: '/1/browser/workbench' },
+  { input: ['/workbench', databaseId], expected: '/1/browser/workbench' },
+  { input: ['browser/workbench', databaseId], expected: '/1/browser/workbench' },
+  { input: ['/browser/workbench', databaseId], expected: '/1/browser/workbench' },
   { input: ['/analytics/slowlog', databaseId], expected: '/1/analytics/slowlog' },
   { input: ['/analytics/slowlog'], expected: null },
   { input: ['/analytics', databaseId], expected: '/1/analytics' },

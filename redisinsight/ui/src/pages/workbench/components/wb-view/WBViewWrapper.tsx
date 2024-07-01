@@ -44,7 +44,7 @@ interface IState {
 
 let state: IState = {
   loading: false,
-  instance: instanceInitState.connectedInstance,
+  instance: instanceInitState?.connectedInstance,
   unsupportedCommands: [],
   blockingCommands: [],
   visualizations: [],
@@ -230,7 +230,6 @@ const WBViewWrapper = () => {
       script={script}
       setScript={setScript}
       setScriptEl={setScriptEl}
-      scriptEl={scriptEl}
       scrollDivRef={scrollDivRef}
       activeMode={activeRunQueryMode}
       onSubmit={sourceValueSubmit}

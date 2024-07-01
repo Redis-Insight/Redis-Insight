@@ -1,7 +1,5 @@
 import { KeyValueFormat, SortOrder } from './keys'
 
-export const SAMPLE_DATA_TUTORIAL = 'redis_use_cases'
-
 export const DEFAULT_DELIMITER = ':'
 export const DEFAULT_TREE_SORTING = SortOrder.ASC
 export const DEFAULT_SHOW_HIDDEN_RECOMMENDATIONS = false

@@ -1,6 +1,6 @@
 import { DatabaseHelper } from '../../../../helpers/database';
-import { WorkbenchPage, MyRedisDatabasePage } from '../../../../pageObjects';
-import { rte } from '../../../../helpers/constants';
+import { WorkbenchPage, MyRedisDatabasePage, BrowserPage } from '../../../../pageObjects';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { commonUrl, ossStandaloneConfig, ossStandaloneRedisearch } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 import { Common } from '../../../../helpers/common';
@@ -8,6 +8,7 @@ import { APIKeyRequests } from '../../../../helpers/api/api-keys';
 
 const myRedisDatabasePage = new MyRedisDatabasePage();
 const workbenchPage = new WorkbenchPage();
+const browserPage = new BrowserPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
 const apiKeyRequests = new APIKeyRequests();
@@ -31,7 +32,7 @@ fixture `Workbench Raw mode`
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneConfig);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async t => {
         // Clear and delete database
@@ -64,7 +65,7 @@ test
         await myRedisDatabasePage.reloadPage();
         await myRedisDatabasePage.clickOnDBByName(databasesForAdding[0].databaseName);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .after(async() => {
         // Clear and delete database
@@ -81,7 +82,7 @@ test
         await t.click(myRedisDatabasePage.NavigationPanel.myRedisDBButton);
         await myRedisDatabasePage.clickOnDBByName(databasesForAdding[1].databaseName);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
         // Verify that user can see saved Raw mode state after re-connection to another DB
         await workbenchPage.sendCommandInWorkbench(commandsForSend[1]);
         await workbenchPage.checkWorkbenchCommandResult(commandsForSend[1], `"${unicodeValue}"`);
@@ -93,7 +94,7 @@ test
     .before(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneRedisearch);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .after(async t => {
         // Drop index, documents and database

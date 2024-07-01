@@ -278,7 +278,7 @@ test
         }
         // Verify that specific report is saved as context
         await t.click(memoryEfficiencyPage.reportItem.nth(3));
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
         await t.click(myRedisDatabasePage.NavigationPanel.analysisPageButton);
         await t.expect(memoryEfficiencyPage.donutTotalKeys.sibling(1).textContent).eql(numberOfKeys[2], 'Context is not saved');
         // Verify that user can see top keys table saved as context

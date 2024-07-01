@@ -13,7 +13,7 @@ services:
       - rihomedir:/root/.redis-insight
       - tmp:/tmp
       - ./remote:/root/remote
-      - ./rdi:/root/rdi
+      # - ./rdi:/root/rdi
     env_file:
       - ./.env
     entrypoint: [

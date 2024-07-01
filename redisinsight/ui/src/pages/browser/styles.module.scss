@@ -1,29 +1,18 @@
 $breakpoint-to-hide-resize-panel: 1280px;
 
 .container {
-  height: 100%;
   max-width: 100vw;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .main {
   display: flex;
-  flex: 1;
+  flex-grow: 1;
   padding: 0 16px;
-  height: calc(100% - 280px);
-
-  &.mainWithBackBtn {
-    height: calc(100% - 338px);
-  }
-
-  @media only screen and (min-width: 768px) {
-    max-width: calc(100vw - 60px);
-
-    &.mainWithBackBtn {
-      height: calc(100% - 118px);
-    }
-  }
+  overflow: hidden;
 }
 
 .resizableButton {

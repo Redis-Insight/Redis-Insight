@@ -1,6 +1,6 @@
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
-import { MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
+import { BrowserPage, MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneRedisearch } from '../../../../helpers/conf';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 import { Common } from '../../../../helpers/common';
@@ -9,6 +9,7 @@ const myRedisDatabasePage = new MyRedisDatabasePage();
 const workbenchPage = new WorkbenchPage();
 const databaseHelper = new DatabaseHelper();
 const databaseAPIRequests = new DatabaseAPIRequests();
+const browserPage = new BrowserPage();
 
 let indexName = Common.generateWord(5);
 
@@ -18,7 +19,8 @@ fixture `JSON verifications at Workbench`
     .beforeEach(async t => {
         await databaseHelper.acceptLicenseTermsAndAddDatabaseApi(ossStandaloneRedisearch);
         // Go to Workbench page
-        await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+        await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+        await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     })
     .afterEach(async t => {
         // Drop index, documents and database

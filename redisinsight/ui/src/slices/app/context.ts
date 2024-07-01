@@ -35,7 +35,7 @@ export const initialState: StateAppContext = {
     : AppWorkspace.Databases,
   contextInstanceId: '',
   contextRdiInstanceId: '',
-  lastPage: '',
+  lastBrowserPage: '',
   dbConfig: {
     treeViewDelimiter: DEFAULT_DELIMITER,
     treeViewSort: DEFAULT_TREE_SORTING,
@@ -179,7 +179,7 @@ const appContextSlice = createSlice({
       state.workbench.panelSizes.vertical = payload
     },
     setLastPageContext: (state, { payload }: { payload: string }) => {
-      state.lastPage = payload
+      state.lastBrowserPage = payload
     },
     resetBrowserTree: (state) => {
       state.browser.tree.selectedLeaf = null

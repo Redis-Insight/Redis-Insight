@@ -1,12 +1,13 @@
 import { t } from 'testcafe';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseHelper } from '../../../../helpers/database';
-import { MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
+import { BrowserPage, MyRedisDatabasePage, WorkbenchPage } from '../../../../pageObjects';
 import { commonUrl, redisEnterpriseClusterConfig } from '../../../../helpers/conf';
 
 const myRedisDatabasePage = new MyRedisDatabasePage();
 const workbenchPage = new WorkbenchPage();
 const databaseHelper = new DatabaseHelper();
+const browserPage = new BrowserPage();
 
 const commandForSend1 = 'info';
 const commandForSend2 = 'FT._LIST';
@@ -17,7 +18,8 @@ const verifyCommandsInWorkbench = async(): Promise<void> => {
         'FT.SEARCH idx *'
     ];
 
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await t.click(myRedisDatabasePage.NavigationPanel.browserButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     // Send commands
     await workbenchPage.sendCommandInWorkbench(commandForSend1);
     await workbenchPage.sendCommandInWorkbench(commandForSend2);

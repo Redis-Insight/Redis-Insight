@@ -5,7 +5,7 @@ import {
     BrowserPage
 } from '../../../../pageObjects';
 import { commonUrl, ossStandaloneConfig } from '../../../../helpers/conf';
-import { rte } from '../../../../helpers/constants';
+import { KeysInteractionTabs, rte } from '../../../../helpers/constants';
 import { DatabaseAPIRequests } from '../../../../helpers/api/api-database';
 import { Common } from '../../../../helpers/common';
 import { APIKeyRequests } from '../../../../helpers/api/api-keys';
@@ -65,7 +65,7 @@ test('Verify that user can see the list of all commands from all clients ran for
     await browserPage.addHashKey(keyName);
     await browserPage.Profiler.checkCommandInMonitorResults(browser_command);
     //Open Workbench page to create new client
-    await t.click(myRedisDatabasePage.NavigationPanel.workbenchButton);
+    await browserPage.KeysInteractionPanel.setActiveTab(KeysInteractionTabs.Workbench);
     //Send command in Workbench
     await workbenchPage.sendCommandInWorkbench(workbench_command);
     //Check that command from Workbench is displayed in monitor

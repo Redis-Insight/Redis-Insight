@@ -2,6 +2,7 @@ import { PageNames, Pages, IRoute } from 'uiSrc/constants'
 import {
   BrowserPage, InstancePage,
 } from 'uiSrc/pages'
+import KeysPage from 'uiSrc/pages/keys'
 import WorkbenchPage from 'uiSrc/pages/workbench'
 import SlowLogPage from 'uiSrc/pages/slow-log'
 import PubSubPage from 'uiSrc/pages/pub-sub'
@@ -9,7 +10,29 @@ import EditConnection from 'uiSrc/pages/redis-stack/components/edit-connection'
 import ClusterDetailsPage from 'uiSrc/pages/cluster-details'
 import AnalyticsPage from 'uiSrc/pages/analytics'
 import DatabaseAnalysisPage from 'uiSrc/pages/database-analysis'
+import SearchPage from 'uiSrc/pages/search'
 import COMMON_ROUTES from './commonRoutes'
+
+const BROWSER_ROUTES: IRoute[] = [
+  {
+    pageName: PageNames.browser,
+    protected: true,
+    path: Pages.browser(':instanceId'),
+    component: BrowserPage,
+  },
+  {
+    pageName: PageNames.search,
+    protected: true,
+    path: Pages.search(':instanceId'),
+    component: SearchPage,
+  },
+  {
+    pageName: PageNames.workbench,
+    protected: true,
+    path: Pages.workbench(':instanceId'),
+    component: WorkbenchPage,
+  },
+]
 
 const ANALYTICS_ROUTES: IRoute[] = [
   {
@@ -34,16 +57,9 @@ const ANALYTICS_ROUTES: IRoute[] = [
 
 const INSTANCE_ROUTES: IRoute[] = [
   {
-    pageName: PageNames.browser,
-    protected: true,
-    path: Pages.browser(':instanceId'),
-    component: BrowserPage,
-  },
-  {
-    pageName: PageNames.workbench,
-    protected: true,
-    path: Pages.workbench(':instanceId'),
-    component: WorkbenchPage,
+    path: Pages.keys(':instanceId'),
+    component: KeysPage,
+    routes: BROWSER_ROUTES,
   },
   {
     pageName: PageNames.pubSub,
@@ -57,6 +73,11 @@ const INSTANCE_ROUTES: IRoute[] = [
     component: AnalyticsPage,
     routes: ANALYTICS_ROUTES,
   },
+  // redirect to the new workbench path
+  {
+    path: ':instanceId/workbench',
+    redirect: (params) => Pages.workbench(params?.instanceId || '')
+  }
 ]
 
 const ROUTES: IRoute[] = [
