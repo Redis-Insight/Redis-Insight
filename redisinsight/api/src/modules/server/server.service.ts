@@ -83,6 +83,7 @@ export class ServerService implements OnApplicationBootstrap {
       if (!info) {
         return Promise.reject(new ServerInfoNotFoundException());
       }
+
       const result = {
         ...info,
         sessionId: this.sessionId,
@@ -111,6 +112,8 @@ export class ServerService implements OnApplicationBootstrap {
         return AppType.Electron;
       case BuildType.RedisStack:
         return AppType.RedisStackWeb;
+      case BuildType.VSCode:
+        return AppType.VSCode;
       default:
         return AppType.Unknown;
     }

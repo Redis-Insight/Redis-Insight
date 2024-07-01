@@ -5,6 +5,7 @@ export enum BuildType {
   RedisStack = 'REDIS_STACK',
   Electron = 'ELECTRON',
   DockerOnPremise = 'DOCKER_ON_PREMISE',
+  VSCode = 'VS_CODE',
 }
 
 export enum PackageType {
@@ -24,6 +25,7 @@ export enum AppType {
   RedisStackApp = 'REDIS_STACK_ELECTRON',
   Electron = 'ELECTRON',
   Docker = 'DOCKER',
+  VSCode = 'VS_CODE',
   Unknown = 'UNKNOWN',
 }
 
