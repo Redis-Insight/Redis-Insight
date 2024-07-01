@@ -20,6 +20,8 @@ export enum BrowserToolStringCommands {
 
 export enum BrowserToolHashCommands {
   HSet = 'hset',
+  HGetAll = 'hgetall',
+  HGETALL = 'HGETALL',
   HGet = 'hget',
   HLen = 'hlen',
   HScan = 'hscan',

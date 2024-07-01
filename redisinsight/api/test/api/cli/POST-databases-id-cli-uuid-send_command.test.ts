@@ -12,6 +12,7 @@ import {
   requirements, serverConfig
 } from '../deps';
 import { ServerService } from 'src/modules/server/server.service';
+import { convertArrayReplyToObject } from 'src/modules/redis/utils';
 const { server, request, constants, rte, analytics } = deps;
 
 // endpoint to test
@@ -292,7 +293,7 @@ describe('POST /databases/:instanceId/cli/:uuid/send-command', () => {
             expect(await rte.client.exists(constants.TEST_HASH_KEY_1)).to.eql(0);
           },
           after: async () => {
-            expect(await rte.client.hgetall(constants.TEST_HASH_KEY_1)).to.deep.eql({
+            expect(convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_1))).to.deep.eql({
               [constants.TEST_HASH_FIELD_1_NAME]: constants.TEST_HASH_FIELD_1_VALUE,
             });
           },

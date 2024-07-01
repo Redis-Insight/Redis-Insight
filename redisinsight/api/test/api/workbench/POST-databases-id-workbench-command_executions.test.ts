@@ -11,6 +11,7 @@ import {
   validateApiCall,
   requirements,
 } from '../deps';
+import { convertArrayReplyToObject } from 'src/modules/redis/utils';
 const { server, request, constants, rte, localDb } = deps;
 
 // endpoint to test
@@ -369,7 +370,7 @@ describe('POST /databases/:instanceId/workbench/command-executions', () => {
             expect(await rte.client.exists(constants.TEST_HASH_KEY_1)).to.eql(0);
           },
           after: async () => {
-            expect(await rte.client.hgetall(constants.TEST_HASH_KEY_1)).to.deep.eql({
+            expect(convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_1))).to.deep.eql({
               [constants.TEST_HASH_FIELD_1_NAME]: constants.TEST_HASH_FIELD_1_VALUE,
             });
           },

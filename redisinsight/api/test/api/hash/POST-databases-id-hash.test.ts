@@ -11,6 +11,7 @@ import {
 } from '../deps';
 const { server, request, constants, rte } = deps;
 import * as Joi from 'joi';
+import { convertArrayReplyToObject } from 'src/modules/redis/utils';
 
 // endpoint to test
 const endpoint = (instanceId = constants.TEST_INSTANCE_ID) =>
@@ -62,7 +63,7 @@ const createCheckFn = async (testCase) => {
     } else {
       if (testCase.statusCode === 201) {
         expect(await rte.client.exists(testCase.data.keyName)).to.eql(1);
-        expect(await rte.client.hgetall(testCase.data.keyName)).to.eql({
+        expect(convertArrayReplyToObject(await rte.client.hgetall(testCase.data.keyName))).to.eql({
           [testCase.data.fields[0].field]: testCase.data.fields[0].value,
         });
         if (testCase.data.expire) {
@@ -188,7 +189,7 @@ describe('POST /databases/:instanceId/hash', () => {
           },
           after: async () =>
             // check that value was not overwritten
-            expect(await rte.client.hgetall(constants.TEST_HASH_KEY_1)).to.deep.eql({
+            expect(convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_1))).to.deep.eql({
               [constants.TEST_HASH_FIELD_1_NAME]: constants.TEST_HASH_FIELD_1_VALUE,
             })
         },

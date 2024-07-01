@@ -10,6 +10,7 @@ import {
 } from '../deps';
 const { server, request, constants, rte } = deps;
 import * as Joi from 'joi';
+import { convertArrayReplyToObject } from 'src/modules/redis/utils';
 
 // endpoint to test
 const endpoint = (instanceId = constants.TEST_INSTANCE_ID) =>
@@ -89,7 +90,7 @@ describe('DELETE /databases/:instanceId/hash/fields', () => {
             affected: 0,
           },
           after: async () => {
-            const fields = await rte.client.hgetall(constants.TEST_HASH_KEY_2);
+            const fields = convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_2));
             (new Array(3000).fill(0)).map((_, i) => {
               expect(fields[`field_${i + 1}`]).to.eql(`value_${i + 1}`);
             });
@@ -106,7 +107,7 @@ describe('DELETE /databases/:instanceId/hash/fields', () => {
             affected: 1,
           },
           after: async () => {
-            const fields = await rte.client.hgetall(constants.TEST_HASH_KEY_2);
+            const fields = convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_2));
             (new Array(2999).fill(0)).map((_, i) => {
               expect(fields[`field_${i + 1}`]).to.eql(`value_${i + 1}`);
             });
@@ -123,7 +124,7 @@ describe('DELETE /databases/:instanceId/hash/fields', () => {
             affected: 4,
           },
           after: async () => {
-            const fields = await rte.client.hgetall(constants.TEST_HASH_KEY_2);
+            const fields = convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_2));
             (new Array(2995).fill(0)).map((_, i) => {
               expect(fields[`field_${i + 3}`]).to.eql(`value_${i + 3}`);
             });

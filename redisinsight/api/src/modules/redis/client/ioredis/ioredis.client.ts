@@ -10,6 +10,9 @@ import { RedisString } from 'src/common/constants';
 import { ClientMetadata } from 'src/common/models';
 import { BrowserToolHashCommands } from 'src/modules/browser/constants/browser-tool-commands';
 
+// should return array (same as original reply)
+Redis.Command.setReplyTransformer(BrowserToolHashCommands.HGetAll, (result) => result);
+
 export abstract class IoredisClient extends RedisClient {
   constructor(
     public readonly clientMetadata: ClientMetadata,
@@ -20,6 +23,8 @@ export abstract class IoredisClient extends RedisClient {
     client.addBuiltinCommand(BrowserToolHashCommands.HExpire);
     client.addBuiltinCommand(BrowserToolHashCommands.HTtl);
     client.addBuiltinCommand(BrowserToolHashCommands.HPersist);
+    // fix not existing command in pipeline
+    client.addBuiltinCommand(BrowserToolHashCommands.HGETALL);
   }
 
   static prepareCommandOptions(options: IRedisClientCommandOptions): any {

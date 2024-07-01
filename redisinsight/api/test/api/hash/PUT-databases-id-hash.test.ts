@@ -10,6 +10,7 @@ import {
 } from '../deps';
 const { server, request, constants, rte } = deps;
 import * as Joi from 'joi';
+import { convertArrayReplyToObject } from 'src/modules/redis/utils';
 
 // endpoint to test
 const endpoint = (instanceId = constants.TEST_INSTANCE_ID) =>
@@ -111,7 +112,7 @@ describe('PUT /databases/:instanceId/hash', () => {
           },
           statusCode: 200,
           after: async () => {
-            expect(await rte.client.hgetall(constants.TEST_HASH_KEY_1)).to.eql({
+            expect(convertArrayReplyToObject(await rte.client.hgetall(constants.TEST_HASH_KEY_1))).to.eql({
               [constants.TEST_HASH_FIELD_1_NAME]: '',
               [constants.TEST_HASH_FIELD_2_NAME]: constants.TEST_HASH_FIELD_2_VALUE,
               ['new_field']: 'new_value',

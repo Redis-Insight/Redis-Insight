@@ -3,8 +3,10 @@ import * as Redis from 'ioredis';
 import {
   mockClientMetadata, mockClusterDatabaseWithTlsAuth,
   mockDatabase, mockDatabaseWithSshBasic,
-  mockDatabaseWithTlsAuth, mockIORedisClient,
-  mockSentinelDatabaseWithTlsAuth, mockSshTunnel, mockSshTunnelProvider, mockStandaloneRedisClient
+  mockDatabaseWithTlsAuth,
+  mockSentinelDatabaseWithTlsAuth,
+  mockSshTunnelProvider,
+  mockStandaloneRedisClient,
 } from 'src/__mocks__';
 import { EventEmitter } from 'events';
 import apiConfig, { Config } from 'src/utils/config';
